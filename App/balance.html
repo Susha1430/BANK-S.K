@@ -6,13 +6,7 @@
 <title>S.K Bank - Balance Check</title>
 
 <style>
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial;
-}
-
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial;}
 body{
 height:100vh;
 display:flex;
@@ -21,7 +15,6 @@ align-items:center;
 background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
 color:white;
 }
-
 .container{
 width:90%;
 max-width:400px;
@@ -33,100 +26,46 @@ box-shadow:0 10px 30px rgba(0,0,0,0.5);
 animation:fadeIn .8s;
 text-align:center;
 }
-
 @keyframes fadeIn{
 from{opacity:0;transform:translateY(30px);}
 to{opacity:1;transform:translateY(0);}
 }
-
-h1{
-margin-bottom:10px;
-}
-
-.subtitle{
-margin-bottom:25px;
-color:#dff5ff;
-}
-
+h1{margin-bottom:10px;}
+.subtitle{margin-bottom:25px;color:#dff5ff;}
 input{
-width:100%;
-padding:14px;
-margin-bottom:15px;
-border:none;
-border-radius:10px;
-font-size:16px;
-outline:none;
-text-align:center;
+width:100%; padding:14px; margin-bottom:15px; border:none; border-radius:10px;
+font-size:16px; outline:none; text-align:center;
 }
-
 button{
-width:100%;
-padding:14px;
-border:none;
-border-radius:10px;
-background:linear-gradient(90deg,#00c6ff,#0072ff);
-color:white;
-font-size:16px;
-font-weight:bold;
-cursor:pointer;
-transition:0.3s;
+width:100%; padding:14px; border:none; border-radius:10px;
+background:linear-gradient(90deg,#00c6ff,#0072ff); color:white;
+font-size:16px; font-weight:bold; cursor:pointer; transition:0.3s;
 }
-
 button:hover{
 transform:translateY(-2px);
 box-shadow:0 6px 15px rgba(0,0,0,0.4);
 }
-
 .message{
-margin-top:15px;
-padding:10px;
-border-radius:10px;
-text-align:center;
-display:none;
+margin-top:15px; padding:10px; border-radius:10px; text-align:center; display:none;
 }
-
-.error{
-background:#ff4b4b33;
-color:#ffdada;
-}
-
-.success{
-background:#00ff7a33;
-color:#caffdf;
-}
-
+.error{background:#ff4b4b33;color:#ffdada;}
+.success{background:#00ff7a33;color:#caffdf;}
 .card-box{
-margin-top:20px;
-padding:20px;
-border-radius:20px;
+margin-top:20px; padding:20px; border-radius:20px;
 background:linear-gradient(135deg,#1f3c88,#39a0ed);
 animation:zoomIn .5s ease;
 display:none;
 box-shadow:0 10px 25px rgba(0,0,0,0.3);
 }
-
 @keyframes zoomIn{
 from{opacity:0; transform:scale(.9);}
 to{opacity:1; transform:scale(1);}
 }
-
-.card-box h3{
-margin-bottom:15px;
-}
-
-.card-box p{
-margin:8px 0;
-font-size:16px;
-}
-
+.card-box h3{margin-bottom:15px;}
+.card-box p{margin:8px 0;font-size:16px;}
 .big-balance{
-font-size:28px;
-font-weight:bold;
-margin:15px 0;
-color:#fff;
-letter-spacing:1px;
+font-size:28px;font-weight:bold;margin:15px 0;color:#fff;letter-spacing:1px;
 }
-
 </style>
 </head>
 
@@ -147,6 +86,8 @@ letter-spacing:1px;
 <p><strong>Bank Name:</strong> <span id="bankNameDisplay"></span></p>
 <p><strong>Account Holder:</strong> <span id="holderNameDisplay"></span></p>
 <p class="big-balance">₹<span id="balanceDisplay">0</span></p>
+<p><strong>ATM Last 6:</strong> <span id="atmLast6Display"></span></p>
+<p><strong>Valid/Thru:</strong> <span id="validThruDisplay"></span></p>
 </div>
 
 </div>
@@ -155,20 +96,14 @@ letter-spacing:1px;
 
 /* ---------- GET LOGIN MOBILE ---------- */
 const loginMobile = localStorage.getItem("io_login_mobile");
-if(!loginMobile){
-window.location.href="login.html";
-}
+if(!loginMobile){ window.location.href="login.html"; }
 
-/* ---------- GET USER AND ACCOUNTS ---------- */
-function getUsers(){
-return JSON.parse(localStorage.getItem("sk_bank_users")) || [];
-}
-
-function getBankAccounts(){
-return JSON.parse(localStorage.getItem("sk_bank_user_accounts")) || [];
-}
+/* ---------- GET USER AND BANK ACCOUNTS ---------- */
+function getUsers(){ return JSON.parse(localStorage.getItem("sk_bank_users")) || []; }
+function getBankAccounts(){ return JSON.parse(localStorage.getItem("sk_bank_user_accounts")) || []; }
 
 const currentUser = getUsers().find(u=>u.mobileNumber===loginMobile);
+if(!currentUser){ window.location.href="login.html"; }
 
 const userAccounts = getBankAccounts().filter(a=>a.mobileNumber===loginMobile);
 
@@ -177,6 +112,8 @@ const cardBox = document.getElementById("cardBox");
 const bankNameDisplay = document.getElementById("bankNameDisplay");
 const holderNameDisplay = document.getElementById("holderNameDisplay");
 const balanceDisplay = document.getElementById("balanceDisplay");
+const atmLast6Display = document.getElementById("atmLast6Display");
+const validThruDisplay = document.getElementById("validThruDisplay");
 
 /* ---------- SHOW MESSAGE ---------- */
 function showMsg(text,type){
@@ -208,24 +145,20 @@ showMsg("Enter 4-digit PIN","error");
 return;
 }
 
-/* check if user has any bank account */
-if(userAccounts.length===0){
-showMsg("No bank account added","error");
-return;
-}
+/* Find the bank account that matches this PIN */
+const account = userAccounts.find(a=>a.pin===pinInput);
 
-/* take first account for demo */
-const account = userAccounts[0];
-
-/* check pin */
-if(pinInput !== account.pin){
-showMsg("Incorrect PIN","error");
+if(!account){
+showMsg("Incorrect PIN or account not found","error");
+cardBox.style.display="none";
 return;
 }
 
 /* show card details */
 bankNameDisplay.textContent = account.bankName;
 holderNameDisplay.textContent = currentUser.fullName;
+atmLast6Display.textContent = account.atmLast6;
+validThruDisplay.textContent = account.validThru ? account.validThru : "--/--";
 animateBalance(currentUser.balance);
 
 cardBox.style.display="block";

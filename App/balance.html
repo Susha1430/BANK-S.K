@@ -8,28 +8,16 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Arial;}
 body{
-height:100vh;
-display:flex;
-justify-content:center;
-align-items:center;
-background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-color:white;
+height:100vh; display:flex; justify-content:center; align-items:center;
+background:linear-gradient(135deg,#0f2027,#203a43,#2c5364); color:white;
 }
 .container{
-width:90%;
-max-width:400px;
-background:rgba(255,255,255,0.12);
-backdrop-filter:blur(12px);
-padding:30px;
-border-radius:20px;
-box-shadow:0 10px 30px rgba(0,0,0,0.5);
-animation:fadeIn .8s;
-text-align:center;
+width:90%; max-width:400px;
+background:rgba(255,255,255,0.12); backdrop-filter:blur(12px);
+padding:30px; border-radius:20px; box-shadow:0 10px 30px rgba(0,0,0,0.5);
+animation:fadeIn .8s; text-align:center;
 }
-@keyframes fadeIn{
-from{opacity:0;transform:translateY(30px);}
-to{opacity:1;transform:translateY(0);}
-}
+@keyframes fadeIn{from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:translateY(0);}}
 h1{margin-bottom:10px;}
 .subtitle{margin-bottom:25px;color:#dff5ff;}
 input{
@@ -42,8 +30,7 @@ background:linear-gradient(90deg,#00c6ff,#0072ff); color:white;
 font-size:16px; font-weight:bold; cursor:pointer; transition:0.3s;
 }
 button:hover{
-transform:translateY(-2px);
-box-shadow:0 6px 15px rgba(0,0,0,0.4);
+transform:translateY(-2px); box-shadow:0 6px 15px rgba(0,0,0,0.4);
 }
 .message{
 margin-top:15px; padding:10px; border-radius:10px; text-align:center; display:none;
@@ -53,14 +40,10 @@ margin-top:15px; padding:10px; border-radius:10px; text-align:center; display:no
 .card-box{
 margin-top:20px; padding:20px; border-radius:20px;
 background:linear-gradient(135deg,#1f3c88,#39a0ed);
-animation:zoomIn .5s ease;
-display:none;
+animation:zoomIn .5s ease; display:none;
 box-shadow:0 10px 25px rgba(0,0,0,0.3);
 }
-@keyframes zoomIn{
-from{opacity:0; transform:scale(.9);}
-to{opacity:1; transform:scale(1);}
-}
+@keyframes zoomIn{from{opacity:0; transform:scale(.9);}to{opacity:1; transform:scale(1);}}
 .card-box h3{margin-bottom:15px;}
 .card-box p{margin:8px 0;font-size:16px;}
 .big-balance{
@@ -70,9 +53,7 @@ font-size:28px;font-weight:bold;margin:15px 0;color:#fff;letter-spacing:1px;
 </head>
 
 <body>
-
 <div class="container">
-
 <h1>S.K Bank</h1>
 <p class="subtitle">Balance Check</p>
 
@@ -86,86 +67,69 @@ font-size:28px;font-weight:bold;margin:15px 0;color:#fff;letter-spacing:1px;
 <p><strong>Bank Name:</strong> <span id="bankNameDisplay"></span></p>
 <p><strong>Account Holder:</strong> <span id="holderNameDisplay"></span></p>
 <p class="big-balance">₹<span id="balanceDisplay">0</span></p>
-<p><strong>ATM Last 6:</strong> <span id="atmLast6Display"></span></p>
-<p><strong>Valid/Thru:</strong> <span id="validThruDisplay"></span></p>
 </div>
-
 </div>
 
 <script>
-
-/* ---------- GET LOGIN MOBILE ---------- */
 const loginMobile = localStorage.getItem("io_login_mobile");
 if(!loginMobile){ window.location.href="login.html"; }
 
-/* ---------- GET USER AND BANK ACCOUNTS ---------- */
 function getUsers(){ return JSON.parse(localStorage.getItem("sk_bank_users")) || []; }
 function getBankAccounts(){ return JSON.parse(localStorage.getItem("sk_bank_user_accounts")) || []; }
 
 const currentUser = getUsers().find(u=>u.mobileNumber===loginMobile);
 if(!currentUser){ window.location.href="login.html"; }
 
-const userAccounts = getBankAccounts().filter(a=>a.mobileNumber===loginMobile);
+/* Only S.K Bank accounts */
+let userAccounts = getBankAccounts().filter(a=>a.mobileNumber===loginMobile && a.bankName==="S.K Bank");
 
 const msg = document.getElementById("msg");
 const cardBox = document.getElementById("cardBox");
 const bankNameDisplay = document.getElementById("bankNameDisplay");
 const holderNameDisplay = document.getElementById("holderNameDisplay");
 const balanceDisplay = document.getElementById("balanceDisplay");
-const atmLast6Display = document.getElementById("atmLast6Display");
-const validThruDisplay = document.getElementById("validThruDisplay");
 
 /* ---------- SHOW MESSAGE ---------- */
 function showMsg(text,type){
-msg.style.display="block";
-msg.className="message "+type;
-msg.innerText=text;
+msg.style.display="block"; msg.className="message "+type; msg.innerText=text;
 }
 
-/* ---------- ANIMATED BALANCE ---------- */
+/* ---------- ANIMATE BALANCE (increase or decrease) ---------- */
 function animateBalance(amount){
-let current = 0;
-const step = Math.max(1, Math.floor(amount/100));
+let current = parseInt(balanceDisplay.textContent.replace(/,/g,'')) || 0;
+const difference = amount - current;
+const steps = 100;
+let step = difference / steps;
+let i=0;
 const interval = setInterval(()=>{
 current += step;
-if(current >= amount){
-current = amount;
-clearInterval(interval);
-}
-balanceDisplay.textContent=current.toLocaleString();
-},15);
+i++;
+balanceDisplay.textContent = Math.round(current).toLocaleString();
+if(i>=steps){ clearInterval(interval); balanceDisplay.textContent = amount.toLocaleString();}
+},10);
 }
 
 /* ---------- CHECK BALANCE ---------- */
 function checkBalance(){
 const pinInput = document.getElementById("pin").value.trim();
+if(pinInput.length!==4){ showMsg("Enter 4-digit PIN","error"); return; }
 
-if(pinInput.length !==4){
-showMsg("Enter 4-digit PIN","error");
-return;
-}
+if(userAccounts.length===0){ showMsg("No S.K Bank account added","error"); cardBox.style.display="none"; return; }
 
-/* Find the bank account that matches this PIN */
+/* Match account by PIN */
 const account = userAccounts.find(a=>a.pin===pinInput);
+if(!account){ showMsg("Incorrect PIN","error"); cardBox.style.display="none"; return; }
 
-if(!account){
-showMsg("Incorrect PIN or account not found","error");
-cardBox.style.display="none";
-return;
-}
-
-/* show card details */
+/* Display details */
 bankNameDisplay.textContent = account.bankName;
 holderNameDisplay.textContent = currentUser.fullName;
-atmLast6Display.textContent = account.atmLast6;
-validThruDisplay.textContent = account.validThru ? account.validThru : "--/--";
+
+/* Animate balance (detect from currentUser.balance in local storage) */
 animateBalance(currentUser.balance);
 
 cardBox.style.display="block";
 showMsg("Balance loaded","success");
 }
-
 </script>
-
 </body>
 </html>

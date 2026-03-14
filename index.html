@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -24,28 +25,37 @@ color:white;
 overflow:hidden;
 }
 
+/* intro container */
+
 .intro{
 text-align:center;
 animation:fadeIn 1.5s ease;
 }
 
+/* bank title */
+
 .title{
-font-size:48px;
+font-size:50px;
 font-weight:bold;
 color:#ffd700;
+letter-spacing:2px;
 text-shadow:0 0 10px #ffd700,0 0 20px #ffae00,0 0 40px #ffae00;
 animation:glow 1.5s infinite alternate;
 }
 
+/* subtitle */
+
 .subtitle{
 margin-top:15px;
 font-size:20px;
-color:#dbeafe;
+color:#e3f6ff;
 animation:fadeUp 2s ease;
 }
 
+/* loading bar */
+
 .loader{
-width:250px;
+width:260px;
 height:8px;
 background:rgba(255,255,255,0.2);
 border-radius:20px;
@@ -60,19 +70,45 @@ background:linear-gradient(90deg,#ffd700,#00c6ff);
 animation:load 3s linear forwards;
 }
 
+/* loading text */
+
+.loading{
+margin-top:10px;
+font-size:14px;
+color:#d8f3ff;
+}
+
+/* animations */
+
 @keyframes glow{
-from{ text-shadow:0 0 10px #ffd700,0 0 20px #ffae00;}
-to{ text-shadow:0 0 20px #fff176,0 0 40px #ff9800;}
+from{
+text-shadow:0 0 10px #ffd700,0 0 20px #ffae00;
+}
+to{
+text-shadow:0 0 20px #fff176,0 0 40px #ff9800;
+}
 }
 
 @keyframes fadeIn{
-from{opacity:0; transform:scale(0.8);}
-to{opacity:1; transform:scale(1);}
+from{
+opacity:0;
+transform:scale(0.8);
+}
+to{
+opacity:1;
+transform:scale(1);
+}
 }
 
 @keyframes fadeUp{
-from{opacity:0; transform:translateY(30px);}
-to{opacity:1; transform:translateY(0);}
+from{
+opacity:0;
+transform:translateY(30px);
+}
+to{
+opacity:1;
+transform:translateY(0);
+}
 }
 
 @keyframes load{
@@ -87,7 +123,7 @@ to{width:100%;}
 
 <div class="intro">
 
-<div class="title">Welcome to S.K Bank</div>
+<div class="title">S.K BANK</div>
 
 <div class="subtitle">Your Trust, Our Priority</div>
 
@@ -95,21 +131,28 @@ to{width:100%;}
 <div class="bar"></div>
 </div>
 
-<div>Opening Secure Banking System...</div>
+<div class="loading">
+Opening Secure Banking System...
+</div>
 
 </div>
 
 <!-- Intro Sound -->
-<audio autoplay>
-  <source src="sk_bank_intro.mp3" type="audio/mpeg">
+
+<audio id="introSound" autoplay>
+<source src="sk_bank_intro.mp3" type="audio/mpeg">
 </audio>
 
-// play sound
+<script>
+
+/* play sound */
+
 window.onload=function(){
 document.getElementById("introSound").play();
 }
 
-// open homepage after 4 seconds
+/* open homepage after 4 seconds */
+
 setTimeout(function(){
 window.location.href="home.html";
 },4000);
@@ -118,3 +161,4 @@ window.location.href="home.html";
 
 </body>
 </html>
+

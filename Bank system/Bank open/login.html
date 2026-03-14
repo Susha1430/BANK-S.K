@@ -23,7 +23,7 @@
 
     .container {
       width: 100%;
-      max-width: 450px;
+      max-width: 470px;
       background: rgba(255, 255, 255, 0.12);
       backdrop-filter: blur(12px);
       border-radius: 22px;
@@ -136,12 +136,14 @@
       background: rgba(0, 200, 83, 0.18);
       color: #b9ffd0;
       border: 1px solid rgba(0, 200, 83, 0.35);
+      display: block;
     }
 
     .error {
       background: rgba(255, 82, 82, 0.16);
       color: #ffd1d1;
       border: 1px solid rgba(255, 82, 82, 0.35);
+      display: block;
     }
 
     .details-box {
@@ -216,6 +218,7 @@
       <p><strong>Full Name:</strong> <span id="showName"></span></p>
       <p><strong>Account Number:</strong> <span id="showAccount"></span></p>
       <p><strong>Customer Number:</strong> <span id="showCustomer"></span></p>
+      <p><strong>ATM Card Number:</strong> <span id="showATMCard">Not issued</span></p>
       <div class="balance">
         Bank Balance: ₹<span id="showBalance"></span>
       </div>
@@ -229,6 +232,10 @@
 
     function getUsers() {
       return JSON.parse(localStorage.getItem("sk_bank_users")) || [];
+    }
+
+    function getCards() {
+      return JSON.parse(localStorage.getItem("sk_bank_atm_cards")) || [];
     }
 
     function showMessage(text, type) {
@@ -253,7 +260,7 @@
 
       const foundUser = users.find(user =>
         user.accountNumber === accountNumber &&
-        user.mobile === mobileNumber
+        (user.mobile === mobileNumber || user.mobileNumber === mobileNumber)
       );
 
       if (!foundUser) {
@@ -268,6 +275,19 @@
       document.getElementById("showAccount").textContent = foundUser.accountNumber || "";
       document.getElementById("showCustomer").textContent = foundUser.customerNumber || "";
       document.getElementById("showBalance").textContent = Number(foundUser.balance || 0).toFixed(2);
+
+      const cards = getCards();
+
+      const userCard = cards.find(card =>
+        card.accountNumber === foundUser.accountNumber &&
+        card.status === "APPROVED"
+      );
+
+      if (userCard) {
+        document.getElementById("showATMCard").textContent = userCard.cardNumber || "Not issued / Pending";
+      } else {
+        document.getElementById("showATMCard").textContent = "Not issued / Pending";
+      }
 
       detailsBox.style.display = "block";
       loginForm.reset();

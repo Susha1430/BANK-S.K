@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>S.K Bank Registration</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial;
+}
+
+body{
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+background:linear-gradient(135deg,#1d4350,#a43931);
+color:white;
+}
+
+.container{
+width:90%;
+max-width:400px;
+background:rgba(255,255,255,0.12);
+backdrop-filter:blur(12px);
+padding:30px;
+border-radius:20px;
+box-shadow:0 10px 30px rgba(0,0,0,0.5);
+animation:fadeIn .8s;
+}
+
+@keyframes fadeIn{
+from{
+opacity:0;
+transform:translateY(30px);
+}
+to{
+opacity:1;
+transform:translateY(0);
+}
+}
+
+h1{
+text-align:center;
+margin-bottom:10px;
+}
+
+.subtitle{
+text-align:center;
+margin-bottom:25px;
+color:#dff5ff;
+}
+
+input{
+width:100%;
+padding:14px;
+margin-bottom:15px;
+border:none;
+border-radius:10px;
+font-size:16px;
+outline:none;
+}
+
+button{
+width:100%;
+padding:14px;
+border:none;
+border-radius:10px;
+background:linear-gradient(90deg,#00c6ff,#0072ff);
+color:white;
+font-size:16px;
+font-weight:bold;
+cursor:pointer;
+transition:0.3s;
+}
+
+button:hover{
+transform:translateY(-2px);
+box-shadow:0 6px 15px rgba(0,0,0,0.4);
+}
+
+.message{
+margin-top:15px;
+padding:10px;
+border-radius:10px;
+text-align:center;
+display:none;
+}
+
+.error{
+background:#ff4b4b33;
+color:#ffdada;
+}
+
+.success{
+background:#00ff7a33;
+color:#caffdf;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>S.K Bank</h1>
+<p class="subtitle">Mobile Registration</p>
+
+<input type="text" id="name" placeholder="Full Name">
+
+<input type="text" id="mobile" placeholder="Mobile Number">
+
+<input type="text" id="customer" placeholder="Customer Number">
+
+<button onclick="register()">Register</button>
+
+<div id="msg" class="message"></div>
+
+</div>
+
+<script>
+
+function getUsers(){
+return JSON.parse(localStorage.getItem("sk_bank_users")) || [];
+}
+
+function saveUsers(users){
+localStorage.setItem("sk_bank_users",JSON.stringify(users));
+}
+
+function showMsg(text,type){
+
+const msg=document.getElementById("msg");
+
+msg.style.display="block";
+msg.className="message "+type;
+msg.innerText=text;
+
+}
+
+function generateAccount(){
+
+return "SK"+Math.floor(100000000+Math.random()*900000000);
+
+}
+
+function register(){
+
+const name=document.getElementById("name").value.trim();
+const mobile=document.getElementById("mobile").value.trim();
+const customer=document.getElementById("customer").value.trim();
+
+if(!name || !mobile || !customer){
+
+showMsg("Fill all details","error");
+return;
+
+}
+
+let users=getUsers();
+
+/* check mobile already registered */
+
+const existing=users.find(u=>u.mobileNumber===mobile);
+
+if(existing){
+
+showMsg("Mobile already registered","error");
+return;
+
+}
+
+const accountNumber=generateAccount();
+
+const user={
+
+fullName:name,
+mobileNumber:mobile,
+customerNumber:customer,
+accountNumber:accountNumber,
+balance:1000
+
+};
+
+users.push(user);
+
+saveUsers(users);
+
+showMsg("Registration Successful","success");
+
+setTimeout(function(){
+
+window.location.href="login.html";
+
+},1500);
+
+}
+
+</script>
+
+</body>
+</html>

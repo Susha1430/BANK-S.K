@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>S.K Bank Login</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial;
+}
+
+body{
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+color:white;
+}
+
+.container{
+width:90%;
+max-width:380px;
+background:rgba(255,255,255,0.12);
+backdrop-filter:blur(10px);
+border-radius:20px;
+padding:30px;
+box-shadow:0 10px 30px rgba(0,0,0,0.5);
+animation:fadeIn .8s;
+}
+
+@keyframes fadeIn{
+from{
+opacity:0;
+transform:translateY(30px);
+}
+to{
+opacity:1;
+transform:translateY(0);
+}
+}
+
+h1{
+text-align:center;
+margin-bottom:10px;
+}
+
+.subtitle{
+text-align:center;
+margin-bottom:25px;
+color:#cdefff;
+}
+
+input{
+width:100%;
+padding:14px;
+border:none;
+border-radius:10px;
+font-size:16px;
+margin-bottom:15px;
+outline:none;
+}
+
+button{
+width:100%;
+padding:14px;
+border:none;
+border-radius:10px;
+background:linear-gradient(90deg,#00c6ff,#0072ff);
+color:white;
+font-size:16px;
+font-weight:bold;
+cursor:pointer;
+transition:0.3s;
+}
+
+button:hover{
+transform:translateY(-2px);
+box-shadow:0 6px 15px rgba(0,0,0,0.4);
+}
+
+.message{
+margin-top:15px;
+padding:10px;
+border-radius:10px;
+text-align:center;
+display:none;
+}
+
+.error{
+background:#ff4b4b33;
+color:#ffdada;
+}
+
+.success{
+background:#00ff7a33;
+color:#caffdf;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>S.K Bank</h1>
+<p class="subtitle">I.O App Login</p>
+
+<input type="text" id="mobile" placeholder="Enter Mobile Number">
+
+<button onclick="login()">Login</button>
+
+<div id="msg" class="message"></div>
+
+</div>
+
+<script>
+
+function getUsers(){
+return JSON.parse(localStorage.getItem("sk_bank_users")) || [];
+}
+
+function showMsg(text,type){
+
+const msg=document.getElementById("msg");
+
+msg.style.display="block";
+msg.className="message "+type;
+msg.innerText=text;
+
+}
+
+function login(){
+
+const mobile=document.getElementById("mobile").value.trim();
+
+if(mobile.length<10){
+
+showMsg("Enter valid mobile number","error");
+return;
+
+}
+
+const users=getUsers();
+
+const user=users.find(u=>u.mobileNumber===mobile);
+
+if(!user){
+
+showMsg("Mobile number not registered","error");
+return;
+
+}
+
+/* save login */
+
+localStorage.setItem("io_login_mobile",mobile);
+
+showMsg("Login Successful","success");
+
+/* open home page */
+
+setTimeout(function(){
+
+window.location.href="home.html";
+
+},1000);
+
+}
+
+/* auto login */
+
+const loginMobile=localStorage.getItem("io_login_mobile");
+
+if(loginMobile){
+
+window.location.href="home.html";
+
+}
+
+</script>
+
+</body>
+</html>

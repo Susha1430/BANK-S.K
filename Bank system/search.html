@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>S.K Bank Registration</title>
+  <style>
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:Arial,sans-serif;
+    }
+
+    body{
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+      padding:20px;
+    }
+
+    .container{
+      width:100%;
+      max-width:520px;
+      background:rgba(255,255,255,0.12);
+      backdrop-filter:blur(12px);
+      border-radius:22px;
+      padding:28px;
+      box-shadow:0 12px 35px rgba(0,0,0,0.35);
+      color:#fff;
+      animation:fadeInUp 0.8s ease;
+    }
+
+    @keyframes fadeInUp{
+      from{
+        opacity:0;
+        transform:translateY(25px);
+      }
+      to{
+        opacity:1;
+        transform:translateY(0);
+      }
+    }
+
+    h1{
+      text-align:center;
+      margin-bottom:8px;
+      font-size:30px;
+    }
+
+    .subtitle{
+      text-align:center;
+      font-size:14px;
+      color:#d8f3ff;
+      margin-bottom:22px;
+    }
+
+    .form-group{
+      margin-bottom:15px;
+    }
+
+    label{
+      display:block;
+      margin-bottom:6px;
+      font-size:14px;
+      font-weight:bold;
+      color:#eefaff;
+    }
+
+    input{
+      width:100%;
+      padding:13px;
+      border:none;
+      outline:none;
+      border-radius:12px;
+      font-size:15px;
+      background:rgba(255,255,255,0.93);
+      color:#222;
+      transition:0.3s ease;
+    }
+
+    input:focus{
+      transform:scale(1.01);
+      box-shadow:0 0 0 3px rgba(0,198,255,0.25);
+    }
+
+    .info-box{
+      margin-top:16px;
+      padding:16px;
+      border-radius:16px;
+      background:rgba(255,255,255,0.10);
+      display:none;
+      animation:zoomIn 0.4s ease;
+    }
+
+    @keyframes zoomIn{
+      from{
+        opacity:0;
+        transform:scale(0.94);
+      }
+      to{
+        opacity:1;
+        transform:scale(1);
+      }
+    }
+
+    .info-box p{
+      margin:8px 0;
+      font-size:15px;
+      color:#eef7ff;
+      word-break:break-word;
+    }
+
+    .highlight{
+      color:#fff;
+      font-weight:bold;
+    }
+
+    .message{
+      margin-top:14px;
+      padding:12px;
+      border-radius:12px;
+      text-align:center;
+      display:none;
+      font-size:14px;
+    }
+
+    .error{
+      background:rgba(255,82,82,0.16);
+      color:#ffd1d1;
+      border:1px solid rgba(255,82,82,0.35);
+    }
+
+    .success{
+      background:rgba(0,200,83,0.18);
+      color:#b9ffd0;
+      border:1px solid rgba(0,200,83,0.35);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>S.K Bank</h1>
+    <p class="subtitle">Find Customer by Mobile Number</p>
+
+    <div class="form-group">
+      <label for="mobileSearch">Input Mobile Number</label>
+      <input type="text" id="mobileSearch" placeholder="Enter registered mobile number" maxlength="10" />
+    </div>
+
+    <div id="messageBox" class="message"></div>
+
+    <div id="infoBox" class="info-box">
+      <p><strong>Full Name:</strong> <span id="showFullName" class="highlight"></span></p>
+      <p><strong>Bank Account Number:</strong> <span id="showAccountNumber" class="highlight"></span></p>
+      <p><strong>Customer Number:</strong> <span id="showCustomerNumber" class="highlight"></span></p>
+    </div>
+  </div>
+
+  <script>
+    const mobileSearch = document.getElementById("mobileSearch");
+    const messageBox = document.getElementById("messageBox");
+    const infoBox = document.getElementById("infoBox");
+
+    function getUsers() {
+      return JSON.parse(localStorage.getItem("sk_bank_users")) || [];
+    }
+
+    function showMessage(text, type) {
+      messageBox.style.display = "block";
+      messageBox.className = "message " + type;
+      messageBox.textContent = text;
+    }
+
+    function hideMessage() {
+      messageBox.style.display = "none";
+      messageBox.textContent = "";
+    }
+
+    mobileSearch.addEventListener("input", function() {
+      const mobile = mobileSearch.value.trim();
+      const users = getUsers();
+
+      if (mobile.length === 0) {
+        hideMessage();
+        infoBox.style.display = "none";
+        return;
+      }
+
+      if (!/^[0-9]*$/.test(mobile)) {
+        showMessage("Only numbers allowed.", "error");
+        infoBox.style.display = "none";
+        return;
+      }
+
+      if (mobile.length < 10) {
+        hideMessage();
+        infoBox.style.display = "none";
+        return;
+      }
+
+      const foundUser = users.find(user => user.mobile === mobile);
+
+      if (foundUser) {
+        showMessage("Customer found successfully.", "success");
+        document.getElementById("showFullName").textContent = foundUser.fullName || "";
+        document.getElementById("showAccountNumber").textContent = foundUser.accountNumber || "";
+        document.getElementById("showCustomerNumber").textContent = foundUser.customerNumber || "";
+        infoBox.style.display = "block";
+      } else {
+        showMessage("Mobile number not found.", "error");
+        infoBox.style.display = "none";
+      }
+    });
+  </script>
+
+</body>
+</html>

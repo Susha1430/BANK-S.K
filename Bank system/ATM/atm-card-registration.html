@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>S.K Bank ATM Card Registration</title>
+  <style>
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:Arial,sans-serif;
+    }
+
+    body{
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+      padding:20px;
+      color:#fff;
+    }
+
+    .container{
+      width:100%;
+      max-width:550px;
+      background:rgba(255,255,255,0.12);
+      backdrop-filter:blur(12px);
+      border-radius:24px;
+      padding:28px;
+      box-shadow:0 12px 35px rgba(0,0,0,0.35);
+      animation:fadeInUp .8s ease;
+    }
+
+    @keyframes fadeInUp{
+      from{opacity:0;transform:translateY(24px);}
+      to{opacity:1;transform:translateY(0);}
+    }
+
+    h1{
+      text-align:center;
+      margin-bottom:8px;
+      font-size:30px;
+    }
+
+    .subtitle{
+      text-align:center;
+      color:#d8f3ff;
+      margin-bottom:20px;
+      font-size:14px;
+    }
+
+    .charge-box{
+      margin-bottom:18px;
+      padding:14px;
+      border-radius:14px;
+      background:rgba(255,255,255,0.10);
+      text-align:center;
+      font-size:15px;
+      line-height:1.6;
+    }
+
+    .form-group{
+      margin-bottom:15px;
+    }
+
+    label{
+      display:block;
+      margin-bottom:6px;
+      font-size:14px;
+      font-weight:bold;
+      color:#eefaff;
+    }
+
+    input{
+      width:100%;
+      padding:13px;
+      border:none;
+      outline:none;
+      border-radius:12px;
+      font-size:15px;
+      background:rgba(255,255,255,0.95);
+      color:#222;
+      transition:.3s ease;
+    }
+
+    input:focus{
+      transform:scale(1.01);
+      box-shadow:0 0 0 3px rgba(0,198,255,0.25);
+    }
+
+    .readonly{
+      background:rgba(220,230,240,0.95);
+    }
+
+    .btn{
+      width:100%;
+      padding:14px;
+      border:none;
+      border-radius:12px;
+      background:linear-gradient(90deg,#00c6ff,#0072ff);
+      color:#fff;
+      font-size:16px;
+      font-weight:bold;
+      cursor:pointer;
+      transition:.3s ease;
+      margin-top:8px;
+    }
+
+    .btn:hover{
+      transform:translateY(-2px);
+      box-shadow:0 8px 18px rgba(0,114,255,0.35);
+    }
+
+    .message{
+      margin-top:16px;
+      padding:12px;
+      border-radius:12px;
+      text-align:center;
+      display:none;
+      font-size:14px;
+      animation:popIn .4s ease;
+    }
+
+    @keyframes popIn{
+      from{opacity:0;transform:scale(.92);}
+      to{opacity:1;transform:scale(1);}
+    }
+
+    .success{
+      display:block;
+      background:rgba(0,200,83,0.18);
+      color:#b9ffd0;
+      border:1px solid rgba(0,200,83,0.35);
+    }
+
+    .error{
+      display:block;
+      background:rgba(255,82,82,0.16);
+      color:#ffd1d1;
+      border:1px solid rgba(255,82,82,0.35);
+    }
+
+    .card-box{
+      margin-top:18px;
+      padding:18px;
+      border-radius:18px;
+      background:linear-gradient(135deg,#1f3c88,#39a0ed);
+      display:none;
+      animation:zoomIn .5s ease;
+      box-shadow:0 10px 25px rgba(0,0,0,0.30);
+    }
+
+    @keyframes zoomIn{
+      from{opacity:0;transform:scale(.92);}
+      to{opacity:1;transform:scale(1);}
+    }
+
+    .card-box h3{
+      margin-bottom:14px;
+      font-size:22px;
+    }
+
+    .card-box p{
+      margin:8px 0;
+      font-size:15px;
+      word-break:break-word;
+    }
+
+    .big-number{
+      font-size:22px;
+      letter-spacing:2px;
+      font-weight:bold;
+      margin:16px 0;
+      color:#fff;
+    }
+
+    .small-row{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      margin-top:10px;
+      flex-wrap:wrap;
+    }
+
+    .small-row div{
+      font-size:14px;
+      color:#eef7ff;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>S.K Bank</h1>
+    <p class="subtitle">ATM Card Registration</p>
+
+    <div class="charge-box">
+      ATM Card Registration Charge: <strong>₹250</strong><br>
+      Amount will be deducted from balance.<br>
+      Status will remain <strong>PENDING</strong> until admin approval.
+    </div>
+
+    <form id="atmForm">
+      <div class="form-group">
+        <label for="accountNumber">S.K Bank Account Number</label>
+        <input type="text" id="accountNumber" placeholder="Enter account number" required />
+      </div>
+
+      <div class="form-group">
+        <label for="customerNumber">Customer Number</label>
+        <input type="text" id="customerNumber" placeholder="Enter customer number" required />
+      </div>
+
+      <div class="form-group">
+        <label for="holderName">Account Holder Name</label>
+        <input type="text" id="holderName" class="readonly" placeholder="Auto detect account holder name" readonly />
+      </div>
+
+      <button type="submit" class="btn">Submit ATM Registration</button>
+    </form>
+
+    <div id="messageBox" class="message"></div>
+
+    <div id="cardBox" class="card-box">
+      <h3>S.K Bank ATM Card Request</h3>
+      <p><strong>Account Holder:</strong> <span id="showHolderName"></span></p>
+      <p><strong>Status:</strong> <span id="showStatus"></span></p>
+      <p class="big-number" id="showCardNumber">PENDING APPROVAL</p>
+      <div class="small-row">
+        <div><strong>Validity:</strong> <span id="showValidity">--/--</span></div>
+        <div><strong>Type:</strong> Master Card</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const atmForm = document.getElementById("atmForm");
+    const accountNumberInput = document.getElementById("accountNumber");
+    const customerNumberInput = document.getElementById("customerNumber");
+    const holderNameInput = document.getElementById("holderName");
+    const messageBox = document.getElementById("messageBox");
+    const cardBox = document.getElementById("cardBox");
+
+    const ATM_CHARGE = 250;
+
+    function getUsers() {
+      return JSON.parse(localStorage.getItem("sk_bank_users")) || [];
+    }
+
+    function saveUsers(users) {
+      localStorage.setItem("sk_bank_users", JSON.stringify(users));
+    }
+
+    function getCards() {
+      return JSON.parse(localStorage.getItem("sk_bank_atm_cards")) || [];
+    }
+
+    function saveCards(cards) {
+      localStorage.setItem("sk_bank_atm_cards", JSON.stringify(cards));
+    }
+
+    function showMessage(text, type) {
+      messageBox.style.display = "block";
+      messageBox.className = "message " + type;
+      messageBox.textContent = text;
+    }
+
+    function hideMessage() {
+      messageBox.style.display = "none";
+      messageBox.textContent = "";
+    }
+
+    function findUser() {
+      const accountNumber = accountNumberInput.value.trim();
+      const customerNumber = customerNumberInput.value.trim();
+      const users = getUsers();
+
+      const foundUser = users.find(user =>
+        user.accountNumber === accountNumber &&
+        user.customerNumber === customerNumber
+      );
+
+      if (foundUser) {
+        holderNameInput.value = foundUser.fullName || "";
+        hideMessage();
+      } else {
+        holderNameInput.value = "";
+      }
+
+      return foundUser;
+    }
+
+    function showCardRequest(cardData) {
+      document.getElementById("showHolderName").textContent = cardData.holderName || "";
+      document.getElementById("showStatus").textContent = cardData.status || "";
+      document.getElementById("showCardNumber").textContent = cardData.cardNumber ? cardData.cardNumber : "PENDING APPROVAL";
+      document.getElementById("showValidity").textContent = cardData.validity || "--/--";
+      cardBox.style.display = "block";
+    }
+
+    accountNumberInput.addEventListener("input", findUser);
+    customerNumberInput.addEventListener("input", findUser);
+
+    atmForm.addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const accountNumber = accountNumberInput.value.trim();
+      const customerNumber = customerNumberInput.value.trim();
+
+      let users = getUsers();
+      let cards = getCards();
+
+      const userIndex = users.findIndex(user =>
+        user.accountNumber === accountNumber &&
+        user.customerNumber === customerNumber
+      );
+
+      if (userIndex === -1) {
+        showMessage("Invalid account number or customer number.", "error");
+        cardBox.style.display = "none";
+        return;
+      }
+
+      const user = users[userIndex];
+
+      const existingCard = cards.find(card =>
+        card.accountNumber === accountNumber &&
+        card.customerNumber === customerNumber
+      );
+
+      if (existingCard) {
+        showMessage("ATM card registration already exists for this account.", "error");
+        showCardRequest(existingCard);
+        return;
+      }
+
+      if (Number(user.balance || 0) < ATM_CHARGE) {
+        showMessage("Insufficient balance. Need ₹250 for ATM registration.", "error");
+        cardBox.style.display = "none";
+        return;
+      }
+
+      user.balance = Number(user.balance || 0) - ATM_CHARGE;
+      users[userIndex] = user;
+      saveUsers(users);
+
+      const newCardRequest = {
+        accountNumber: accountNumber,
+        customerNumber: customerNumber,
+        holderName: user.fullName,
+        mobileNumber: user.mobileNumber || "",
+        status: "PENDING",
+        cardNumber: "",
+        validity: "",
+        cardType: "Master Card",
+        pin: "",
+        charge: ATM_CHARGE
+      };
+
+      cards.push(newCardRequest);
+      saveCards(cards);
+
+      showMessage("ATM card registration pending. ₹250 deducted from account balance.", "success");
+      showCardRequest(newCardRequest);
+
+      atmForm.reset();
+      holderNameInput.value = "";
+    });
+  </script>
+</body>
+</html>

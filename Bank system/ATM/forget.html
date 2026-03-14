@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>S.K Bank - Forget PIN</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      color: #fff;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 500px;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    h2, h3 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      outline: none;
+      font-size: 15px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #00c6ff;
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: #0072ff;
+    }
+
+    .preview-card {
+      display: none;
+      margin-top: 20px;
+      background: rgba(255,255,255,0.12);
+      border-radius: 15px;
+      padding: 15px;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .preview-card p {
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    .message {
+      margin-top: 15px;
+      text-align: center;
+      font-weight: bold;
+      color: #ffe082;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>S.K Bank</h2>
+    <h3>Forget PIN Code</h3>
+
+    <div class="form-group">
+      <label>S.K Bank Account Number</label>
+      <input type="text" id="forgotAccountNumber" placeholder="Enter bank account number" required>
+    </div>
+
+    <div class="form-group">
+      <label>Mobile Number</label>
+      <input type="text" id="forgotMobile" placeholder="Enter mobile number" required>
+    </div>
+
+    <div class="form-group">
+      <label>ATM Card Number</label>
+      <input type="text" id="forgotCardNumber" placeholder="Auto detected card number" readonly>
+    </div>
+
+    <div class="preview-card" id="cardPreview">
+      <p><strong>Full Name:</strong> <span id="previewName"></span></p>
+      <p><strong>Account Number:</strong> <span id="previewAccount"></span></p>
+      <p><strong>Customer ID:</strong> <span id="previewCustomerId"></span></p>
+      <p><strong>Card Number:</strong> <span id="previewCard"></span></p>
+      <p><strong>Status:</strong> <span id="previewStatus"></span></p>
+    </div>
+
+    <button onclick="generateOTP()">Generate OTP</button>
+
+    <div class="form-group">
+      <label>Enter OTP</label>
+      <input type="text" id="otpInput" placeholder="Enter OTP">
+    </div>
+
+    <div class="form-group">
+      <label>New PIN</label>
+      <input type="password" id="newPin" placeholder="Enter new 4 digit PIN" maxlength="4">
+    </div>
+
+    <button onclick="resetPIN()">Reset PIN</button>
+
+    <div class="message" id="messageBox"></div>
+  </div>
+
+  <script>
+    const forgotAccountNumber = document.getElementById("forgotAccountNumber");
+    const forgotMobile = document.getElementById("forgotMobile");
+    const forgotCardNumber = document.getElementById("forgotCardNumber");
+    const otpInput = document.getElementById("otpInput");
+    const newPin = document.getElementById("newPin");
+    const messageBox = document.getElementById("messageBox");
+    const cardPreview = document.getElementById("cardPreview");
+
+    const previewName = document.getElementById("previewName");
+    const previewAccount = document.getElementById("previewAccount");
+    const previewCustomerId = document.getElementById("previewCustomerId");
+    const previewCard = document.getElementById("previewCard");
+    const previewStatus = document.getElementById("previewStatus");
+
+    let forgotCardIndex = -1;
+    let generatedOTP = "";
+
+    function getCards() {
+      return JSON.parse(localStorage.getItem("sk_bank_cards")) || [
+        {
+          fullName: "S.K SUSHANTA",
+          mobileNumber: "9876543210",
+          accountNumber: "SK202500001",
+          customerId: "CUS1001",
+          cardNumber: "1234567812345678",
+          pin: "1234",
+          status: "APPROVED"
+        },
+        {
+          fullName: "RAJ KUMAR",
+          mobileNumber: "9999999999",
+          accountNumber: "SK202500002",
+          customerId: "CUS1002",
+          cardNumber: "8765432187654321",
+          pin: "4321",
+          status: "APPROVED"
+        }
+      ];
+    }
+
+    function saveCards(cards) {
+      localStorage.setItem("sk_bank_cards", JSON.stringify(cards));
+    }
+
+    function formatCardNumber(cardNumber) {
+      return cardNumber.replace(/(.{4})/g, "$1 ").trim();
+    }
+
+    function showPreview(card) {
+      previewName.textContent = card.fullName;
+      previewAccount.textContent = card.accountNumber;
+      previewCustomerId.textContent = card.customerId;
+      previewCard.textContent = formatCardNumber(card.cardNumber);
+      previewStatus.textContent = card.status;
+      cardPreview.style.display = "block";
+    }
+
+    function detectCardFromAccountMobile() {
+      const mobile = forgotMobile.value.trim();
+      const account = forgotAccountNumber.value.trim();
+      const cards = getCards();
+
+      const foundIndex = cards.findIndex(card =>
+        card.mobileNumber === mobile &&
+        card.accountNumber === account &&
+        card.status === "APPROVED" &&
+        card.cardNumber
+      );
+
+      if (foundIndex !== -1) {
+        forgotCardIndex = foundIndex;
+        forgotCardNumber.value = formatCardNumber(cards[foundIndex].cardNumber);
+        showPreview(cards[foundIndex]);
+        messageBox.textContent = "";
+      } else {
+        forgotCardIndex = -1;
+        forgotCardNumber.value = "";
+        cardPreview.style.display = "none";
+      }
+    }
+
+    forgotMobile.addEventListener("input", detectCardFromAccountMobile);
+    forgotAccountNumber.addEventListener("input", detectCardFromAccountMobile);
+
+    function generateOTP() {
+      if (forgotCardIndex === -1) {
+        messageBox.textContent = "Account number and mobile number do not match.";
+        return;
+      }
+
+      generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
+      messageBox.textContent = "OTP Generated: " + generatedOTP;
+    }
+
+    function resetPIN() {
+      const enteredOTP = otpInput.value.trim();
+      const pin = newPin.value.trim();
+
+      if (forgotCardIndex === -1) {
+        messageBox.textContent = "Please verify account and mobile number first.";
+        return;
+      }
+
+      if (!generatedOTP) {
+        messageBox.textContent = "Please generate OTP first.";
+        return;
+      }
+
+      if (enteredOTP !== generatedOTP) {
+        messageBox.textContent = "Invalid OTP.";
+        return;
+      }
+
+      if (!/^\d{4}$/.test(pin)) {
+        messageBox.textContent = "PIN must be exactly 4 digits.";
+        return;
+      }
+
+      const cards = getCards();
+      cards[forgotCardIndex].pin = pin;
+      saveCards(cards);
+
+      messageBox.textContent = "PIN reset successful.";
+      otpInput.value = "";
+      newPin.value = "";
+      generatedOTP = "";
+    }
+  </script>
+
+</body>
+</html>

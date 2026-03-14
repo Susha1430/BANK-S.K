@@ -236,186 +236,220 @@
   </div>
 
   <script>
-    const atmForm = document.getElementById("atmForm");
-    const accountNumberInput = document.getElementById("accountNumber");
-    const customerNumberInput = document.getElementById("customerNumber");
-    const holderNameInput = document.getElementById("holderName");
-    const messageBox = document.getElementById("messageBox");
-    const cardBox = document.getElementById("cardBox");
 
-    const showHolderName = document.getElementById("showHolderName");
-    const showStatus = document.getElementById("showStatus");
-    const showCardNumber = document.getElementById("showCardNumber");
-    const showValidity = document.getElementById("showValidity");
-    const showType = document.getElementById("showType");
+const atmForm = document.getElementById("atmForm");
+const accountNumberInput = document.getElementById("accountNumber");
+const customerNumberInput = document.getElementById("customerNumber");
+const holderNameInput = document.getElementById("holderName");
+const messageBox = document.getElementById("messageBox");
+const cardBox = document.getElementById("cardBox");
 
-    const ATM_CHARGE = 250;
+const showHolderName = document.getElementById("showHolderName");
+const showStatus = document.getElementById("showStatus");
+const showCardNumber = document.getElementById("showCardNumber");
+const showValidity = document.getElementById("showValidity");
+const showType = document.getElementById("showType");
 
-    function getUsers() {
-      return JSON.parse(localStorage.getItem("sk_bank_users")) || [];
+const ATM_CHARGE = 250;
+
+/* ---------- STORAGE ---------- */
+
+function getUsers(){
+  return JSON.parse(localStorage.getItem("sk_bank_users")) || [];
+}
+
+function saveUsers(users){
+  localStorage.setItem("sk_bank_users",JSON.stringify(users));
+}
+
+function getCards(){
+  return JSON.parse(localStorage.getItem("sk_bank_atm_cards")) || [];
+}
+
+function saveCards(cards){
+  localStorage.setItem("sk_bank_atm_cards",JSON.stringify(cards));
+}
+
+function getTransactions(){
+  return JSON.parse(localStorage.getItem("sk_bank_transactions")) || [];
+}
+
+function saveTransactions(data){
+  localStorage.setItem("sk_bank_transactions",JSON.stringify(data));
+}
+
+/* ---------- TRANSACTION SAVE ---------- */
+
+function saveTransaction(accountNumber,type,amount){
+
+  let transactions = getTransactions();
+
+  const now = new Date();
+
+  const date = now.toLocaleDateString();
+  const time = now.toLocaleTimeString();
+
+  const data = {
+    accountNumber:accountNumber,
+    type:type,
+    amount:amount,
+    date:date,
+    time:time
+  };
+
+  transactions.push(data);
+
+  saveTransactions(transactions);
+}
+
+/* ---------- UI ---------- */
+
+function showMessage(text,type){
+  messageBox.style.display="block";
+  messageBox.className="message "+type;
+  messageBox.textContent=text;
+}
+
+function hideMessage(){
+  messageBox.style.display="none";
+}
+
+function hideCardBox(){
+  cardBox.style.display="none";
+}
+
+function showCardRequest(card){
+
+  showHolderName.textContent = card.holderName;
+  showStatus.textContent = card.status;
+
+  showCardNumber.textContent =
+  card.cardNumber ? card.cardNumber : "PENDING APPROVAL";
+
+  showValidity.textContent =
+  card.validity ? card.validity : "--/--";
+
+  showType.textContent = card.cardType;
+
+  cardBox.style.display="block";
+}
+
+/* ---------- FIND USER ---------- */
+
+function findUser(){
+
+  const acc = accountNumberInput.value.trim();
+  const cus = customerNumberInput.value.trim();
+
+  const users = getUsers();
+  const cards = getCards();
+
+  const user = users.find(
+  u => u.accountNumber === acc && u.customerNumber === cus
+  );
+
+  if(user){
+
+    holderNameInput.value = user.fullName;
+
+    const card = cards.find(
+    c => c.accountNumber === acc
+    );
+
+    if(card){
+      showCardRequest(card);
+    }else{
+      hideCardBox();
     }
 
-    function saveUsers(users) {
-      localStorage.setItem("sk_bank_users", JSON.stringify(users));
-    }
+  }else{
+    holderNameInput.value="";
+    hideCardBox();
+  }
 
-    function getCards() {
-      return JSON.parse(localStorage.getItem("sk_bank_atm_cards")) || [];
-    }
+}
 
-    function saveCards(cards) {
-      localStorage.setItem("sk_bank_atm_cards", JSON.stringify(cards));
-    }
+accountNumberInput.addEventListener("input",findUser);
+customerNumberInput.addEventListener("input",findUser);
 
-    function showMessage(text, type) {
-      messageBox.style.display = "block";
-      messageBox.className = "message " + type;
-      messageBox.textContent = text;
-    }
+/* ---------- SUBMIT ATM REQUEST ---------- */
 
-    function hideMessage() {
-      messageBox.style.display = "none";
-      messageBox.textContent = "";
-      messageBox.className = "message";
-    }
+atmForm.addEventListener("submit",function(e){
 
-    function hideCardBox() {
-      cardBox.style.display = "none";
-    }
+  e.preventDefault();
 
-    function showCardRequest(cardData) {
-      showHolderName.textContent = cardData.holderName || "";
-      showStatus.textContent = cardData.status || "PENDING";
-      showCardNumber.textContent = cardData.cardNumber && cardData.cardNumber.trim() !== ""
-        ? cardData.cardNumber
-        : "PENDING APPROVAL";
-      showValidity.textContent = cardData.validity && cardData.validity.trim() !== ""
-        ? cardData.validity
-        : "--/--";
-      showType.textContent = cardData.cardType || "Master Card";
-      cardBox.style.display = "block";
-    }
+  const acc = accountNumberInput.value.trim();
+  const cus = customerNumberInput.value.trim();
 
-    function findUserAndCard() {
-      const accountNumber = accountNumberInput.value.trim();
-      const customerNumber = customerNumberInput.value.trim();
+  let users = getUsers();
+  let cards = getCards();
 
-      if (!accountNumber || !customerNumber) {
-        holderNameInput.value = "";
-        hideMessage();
-        hideCardBox();
-        return null;
-      }
+  const index = users.findIndex(
+  u => u.accountNumber === acc && u.customerNumber === cus
+  );
 
-      const users = getUsers();
-      const cards = getCards();
+  if(index === -1){
+    showMessage("Invalid account details","error");
+    return;
+  }
 
-      const foundUser = users.find(user =>
-        user.accountNumber === accountNumber &&
-        user.customerNumber === customerNumber
-      );
+  const user = users[index];
 
-      if (foundUser) {
-        holderNameInput.value = foundUser.fullName || "";
+  const existing = cards.find(
+  c => c.accountNumber === acc
+  );
 
-        const existingCard = cards.find(card =>
-          card.accountNumber === accountNumber &&
-          card.customerNumber === customerNumber
-        );
+  if(existing){
+    showMessage("ATM already requested","error");
+    showCardRequest(existing);
+    return;
+  }
 
-        if (existingCard) {
-          showMessage("ATM card request already found for this account.", "success");
-          showCardRequest(existingCard);
-        } else {
-          hideMessage();
-          hideCardBox();
-        }
-      } else {
-        holderNameInput.value = "";
-        hideMessage();
-        hideCardBox();
-      }
+  if(user.balance < ATM_CHARGE){
+    showMessage("Insufficient balance ₹250 required","error");
+    return;
+  }
 
-      return foundUser;
-    }
+  /* deduct balance */
 
-    accountNumberInput.addEventListener("input", findUserAndCard);
-    customerNumberInput.addEventListener("input", findUserAndCard);
+  user.balance = user.balance - ATM_CHARGE;
+  users[index] = user;
 
-    atmForm.addEventListener("submit", function(e) {
-      e.preventDefault();
+  saveUsers(users);
 
-      const accountNumber = accountNumberInput.value.trim();
-      const customerNumber = customerNumberInput.value.trim();
+  /* SAVE TRANSACTION */
 
-      if (!accountNumber || !customerNumber) {
-        showMessage("Please enter account number and customer number.", "error");
-        hideCardBox();
-        return;
-      }
+  saveTransaction(acc,"ATM Card Charge",-250);
 
-      let users = getUsers();
-      let cards = getCards();
+  /* create card request */
 
-      const userIndex = users.findIndex(user =>
-        user.accountNumber === accountNumber &&
-        user.customerNumber === customerNumber
-      );
+  const request = {
 
-      if (userIndex === -1) {
-        showMessage("Invalid account number or customer number.", "error");
-        hideCardBox();
-        holderNameInput.value = "";
-        return;
-      }
+    accountNumber:acc,
+    customerNumber:cus,
+    holderName:user.fullName,
+    mobileNumber:user.mobileNumber,
+    status:"PENDING",
+    cardNumber:"",
+    validity:"",
+    cardType:"Master Card",
+    created:new Date().toLocaleString()
 
-      const user = users[userIndex];
+  };
 
-      const existingCard = cards.find(card =>
-        card.accountNumber === accountNumber &&
-        card.customerNumber === customerNumber
-      );
+  cards.push(request);
+  saveCards(cards);
 
-      if (existingCard) {
-        showMessage("ATM card registration already exists for this account.", "error");
-        showCardRequest(existingCard);
-        return;
-      }
+  showMessage("ATM request submitted ₹250 deducted","success");
 
-      if (Number(user.balance || 0) < ATM_CHARGE) {
-        showMessage("Insufficient balance. Need ₹250 for ATM registration.", "error");
-        hideCardBox();
-        return;
-      }
+  showCardRequest(request);
 
-      user.balance = Number(user.balance || 0) - ATM_CHARGE;
-      users[userIndex] = user;
-      saveUsers(users);
+  atmForm.reset();
+  holderNameInput.value="";
 
-      const newCardRequest = {
-        accountNumber: accountNumber,
-        customerNumber: customerNumber,
-        holderName: user.fullName || "",
-        mobileNumber: user.mobileNumber || "",
-        status: "PENDING",
-        cardNumber: "",
-        validity: "",
-        cardType: "Master Card",
-        pin: "",
-        charge: ATM_CHARGE,
-        createdAt: new Date().toLocaleString()
-      };
+});
 
-      cards.push(newCardRequest);
-      saveCards(cards);
-
-      showMessage("ATM card registration pending. ₹250 deducted from account balance.", "success");
-      showCardRequest(newCardRequest);
-
-      atmForm.reset();
-      holderNameInput.value = "";
-    });
-  </script>
+</script>
 
 </body>
 </html>

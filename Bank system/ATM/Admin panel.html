@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>S.K Bank ATM Admin Panel</title>
+  <style>
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:Arial,sans-serif;
+    }
+
+    body{
+      min-height:100vh;
+      background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+      color:#fff;
+      padding:20px;
+    }
+
+    .container{
+      max-width:1100px;
+      margin:auto;
+    }
+
+    .title{
+      text-align:center;
+      margin-bottom:20px;
+      font-size:32px;
+    }
+
+    .subtitle{
+      text-align:center;
+      margin-bottom:30px;
+      color:#d7efff;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:20px;
+    }
+
+    .card{
+      background:rgba(255,255,255,0.10);
+      backdrop-filter:blur(10px);
+      border-radius:20px;
+      padding:20px;
+      box-shadow:0 10px 30px rgba(0,0,0,0.25);
+    }
+
+    .card h2{
+      margin-bottom:15px;
+      font-size:22px;
+      color:#fff;
+    }
+
+    .request-item{
+      background:rgba(255,255,255,0.08);
+      border-radius:14px;
+      padding:14px;
+      margin-bottom:14px;
+      border:1px solid rgba(255,255,255,0.08);
+    }
+
+    .request-item p{
+      margin:6px 0;
+      font-size:14px;
+      word-break:break-word;
+    }
+
+    .btn{
+      padding:10px 14px;
+      border:none;
+      border-radius:10px;
+      cursor:pointer;
+      font-weight:bold;
+      margin-top:10px;
+      margin-right:8px;
+      transition:.3s;
+    }
+
+    .approve{
+      background:linear-gradient(90deg,#00c853,#00e676);
+      color:#08340f;
+    }
+
+    .reject{
+      background:linear-gradient(90deg,#ff5252,#ff1744);
+      color:#fff;
+    }
+
+    .btn:hover{
+      transform:translateY(-2px);
+    }
+
+    .empty{
+      opacity:0.8;
+      font-size:14px;
+      padding:10px 0;
+    }
+
+    .message{
+      margin-bottom:18px;
+      padding:12px;
+      border-radius:12px;
+      display:none;
+      font-size:14px;
+    }
+
+    .success{
+      display:block;
+      background:rgba(0,200,83,0.18);
+      color:#b9ffd0;
+      border:1px solid rgba(0,200,83,0.35);
+    }
+
+    .error{
+      display:block;
+      background:rgba(255,82,82,0.16);
+      color:#ffd1d1;
+      border:1px solid rgba(255,82,82,0.35);
+    }
+
+    .approved-card{
+      background:linear-gradient(135deg,#1f3c88,#39a0ed);
+      border-radius:18px;
+      padding:20px;
+      margin-top:14px;
+      box-shadow:0 10px 25px rgba(0,0,0,0.30);
+    }
+
+    .approved-card h3{
+      margin-bottom:10px;
+      font-size:21px;
+    }
+
+    .big-number{
+      font-size:24px;
+      letter-spacing:3px;
+      margin:14px 0;
+      font-weight:bold;
+    }
+
+    .small-row{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:10px;
+    }
+
+    .small-row div{
+      font-size:14px;
+    }
+
+    .pin-form .form-group{
+      margin-bottom:14px;
+    }
+
+    .pin-form label{
+      display:block;
+      margin-bottom:6px;
+      font-size:14px;
+      font-weight:bold;
+      color:#eefaff;
+    }
+
+    .pin-form input{
+      width:100%;
+      padding:12px;
+      border:none;
+      outline:none;
+      border-radius:10px;
+      font-size:15px;
+      background:#fff;
+      color:#222;
+    }
+
+    .pin-btn{
+      width:100%;
+      padding:13px;
+      border:none;
+      border-radius:12px;
+      background:linear-gradient(90deg,#00c6ff,#0072ff);
+      color:#fff;
+      font-size:16px;
+      font-weight:bold;
+      cursor:pointer;
+    }
+
+    .pin-info{
+      font-size:13px;
+      color:#dbefff;
+      margin-bottom:12px;
+      line-height:1.5;
+    }
+
+    @media(max-width:900px){
+      .grid{
+        grid-template-columns:1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1 class="title">S.K Bank ATM Admin Panel</h1>
+    <p class="subtitle">Approve ATM card requests and set ATM PIN</p>
+
+    <div id="messageBox" class="message"></div>
+
+    <div class="grid">
+      <!-- LEFT: ADMIN REQUESTS -->
+      <div class="card">
+        <h2>Pending ATM Requests</h2>
+        <div id="pendingList"></div>
+      </div>
+
+      <!-- RIGHT: PIN SETUP -->
+      <div class="card">
+        <h2>ATM PIN Setup</h2>
+        <p class="pin-info">
+          Approved ATM card users can set a 4-digit PIN using the last 6 digits of the card number.
+        </p>
+
+        <form id="pinForm" class="pin-form">
+          <div class="form-group">
+            <label for="lastSixDigits">Last 6 Digits of ATM Card Number</label>
+            <input type="text" id="lastSixDigits" maxlength="6" placeholder="Enter last 6 digits" required />
+          </div>
+
+          <div class="form-group">
+            <label for="pinCode">Enter 4 Digit PIN</label>
+            <input type="password" id="pinCode" maxlength="4" placeholder="Enter 4 digit PIN" required />
+          </div>
+
+          <div class="form-group">
+            <label for="rePinCode">Re-Enter 4 Digit PIN</label>
+            <input type="password" id="rePinCode" maxlength="4" placeholder="Re-enter 4 digit PIN" required />
+          </div>
+
+          <button type="submit" class="pin-btn">Set ATM PIN</button>
+        </form>
+
+        <div id="approvedPreview"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const pendingList = document.getElementById("pendingList");
+    const messageBox = document.getElementById("messageBox");
+    const pinForm = document.getElementById("pinForm");
+    const approvedPreview = document.getElementById("approvedPreview");
+
+    function getCards(){
+      return JSON.parse(localStorage.getItem("sk_bank_atm_cards")) || [];
+    }
+
+    function saveCards(cards){
+      localStorage.setItem("sk_bank_atm_cards", JSON.stringify(cards));
+    }
+
+    function getUsers(){
+      return JSON.parse(localStorage.getItem("sk_bank_users")) || [];
+    }
+
+    function saveUsers(users){
+      localStorage.setItem("sk_bank_users", JSON.stringify(users));
+    }
+
+    function showMessage(text,type){
+      messageBox.style.display = "block";
+      messageBox.className = "message " + type;
+      messageBox.textContent = text;
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function formatCardNumber(num){
+      return num.replace(/(\d{4})(?=\d)/g, "$1 ");
+    }
+
+    function generateCardNumber(){
+      let number = "5";
+      while(number.length < 16){
+        number += Math.floor(Math.random() * 10);
+      }
+      return number;
+    }
+
+    function generateCVV(){
+      return String(Math.floor(100 + Math.random() * 900));
+    }
+
+    function generateValidity(){
+      const now = new Date();
+      const futureYear = String((now.getFullYear() + 5)).slice(-2);
+      const month = String(now.getMonth() + 1).padStart(2,"0");
+      return month + "/" + futureYear;
+    }
+
+    function renderPendingRequests(){
+      const cards = getCards();
+      const pendingCards = cards.filter(card => card.status === "PENDING");
+
+      if(pendingCards.length === 0){
+        pendingList.innerHTML = `<div class="empty">No pending ATM requests found.</div>`;
+        return;
+      }
+
+      pendingList.innerHTML = pendingCards.map((card,index) => `
+        <div class="request-item">
+          <p><strong>Account Number:</strong> ${card.accountNumber}</p>
+          <p><strong>Customer Number:</strong> ${card.customerNumber}</p>
+          <p><strong>Holder Name:</strong> ${card.holderName}</p>
+          <p><strong>Mobile:</strong> ${card.mobileNumber || "-"}</p>
+          <p><strong>Status:</strong> ${card.status}</p>
+          <p><strong>Request Time:</strong> ${card.created}</p>
+          <button class="btn approve" onclick="approveCard(${index}, '${card.accountNumber}')">Approve</button>
+          <button class="btn reject" onclick="rejectCard('${card.accountNumber}')">Reject</button>
+        </div>
+      `).join("");
+    }
+
+    function approveCard(pendingIndex, accountNumber){
+      let cards = getCards();
+
+      const realIndex = cards.findIndex(c => c.accountNumber === accountNumber && c.status === "PENDING");
+
+      if(realIndex === -1){
+        showMessage("Pending request not found","error");
+        renderPendingRequests();
+        return;
+      }
+
+      cards[realIndex].status = "APPROVED";
+      cards[realIndex].cardNumber = generateCardNumber();
+      cards[realIndex].validity = generateValidity();
+      cards[realIndex].cvv = generateCVV();
+      cards[realIndex].pin = "";
+      cards[realIndex].approvedAt = new Date().toLocaleString();
+
+      saveCards(cards);
+
+      showMessage("ATM card approved successfully","success");
+      showApprovedPreview(cards[realIndex]);
+      renderPendingRequests();
+    }
+
+    function rejectCard(accountNumber){
+      let cards = getCards();
+
+      const realIndex = cards.findIndex(c => c.accountNumber === accountNumber && c.status === "PENDING");
+
+      if(realIndex === -1){
+        showMessage("Pending request not found","error");
+        renderPendingRequests();
+        return;
+      }
+
+      cards[realIndex].status = "REJECTED";
+      cards[realIndex].rejectedAt = new Date().toLocaleString();
+
+      saveCards(cards);
+
+      showMessage("ATM request rejected","error");
+      approvedPreview.innerHTML = "";
+      renderPendingRequests();
+    }
+
+    function showApprovedPreview(card){
+      approvedPreview.innerHTML = `
+        <div class="approved-card">
+          <h3>Approved ATM Card</h3>
+          <p><strong>Account Holder:</strong> ${card.holderName}</p>
+          <p><strong>Status:</strong> ${card.status}</p>
+          <div class="big-number">${formatCardNumber(card.cardNumber)}</div>
+          <div class="small-row">
+            <div><strong>Validity:</strong> ${card.validity}</div>
+            <div><strong>CVV:</strong> ${card.cvv}</div>
+            <div><strong>Type:</strong> ${card.cardType}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    pinForm.addEventListener("submit", function(e){
+      e.preventDefault();
+
+      const lastSixDigits = document.getElementById("lastSixDigits").value.trim();
+      const pinCode = document.getElementById("pinCode").value.trim();
+      const rePinCode = document.getElementById("rePinCode").value.trim();
+
+      if(!/^\d{6}$/.test(lastSixDigits)){
+        showMessage("Last 6 digits must be exactly 6 numbers","error");
+        return;
+      }
+
+      if(!/^\d{4}$/.test(pinCode)){
+        showMessage("PIN must be exactly 4 digits","error");
+        return;
+      }
+
+      if(pinCode !== rePinCode){
+        showMessage("PIN and Re-enter PIN do not match","error");
+        return;
+      }
+
+      let cards = getCards();
+
+      const cardIndex = cards.findIndex(card =>
+        card.status === "APPROVED" &&
+        card.cardNumber &&
+        card.cardNumber.slice(-6) === lastSixDigits
+      );
+
+      if(cardIndex === -1){
+        showMessage("Approved ATM card not found with entered last 6 digits","error");
+        return;
+      }
+
+      cards[cardIndex].pin = pinCode;
+      cards[cardIndex].pinSet = true;
+      cards[cardIndex].pinCreatedAt = new Date().toLocaleString();
+
+      saveCards(cards);
+
+      showMessage("ATM PIN set successfully","success");
+      showApprovedPreview(cards[cardIndex]);
+      pinForm.reset();
+    });
+
+    renderPendingRequests();
+  </script>
+
+</body>
+</html>

@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,7 +11,7 @@
 margin:0;
 padding:0;
 box-sizing:border-box;
-font-family:Arial, sans-serif;
+font-family:Arial,sans-serif;
 }
 
 body{
@@ -22,98 +21,36 @@ justify-content:center;
 align-items:center;
 background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
 color:white;
-overflow:hidden;
 }
-
-/* intro container */
 
 .intro{
 text-align:center;
-animation:fadeIn 1.5s ease;
 }
-
-/* bank title */
 
 .title{
-font-size:50px;
-font-weight:bold;
+font-size:48px;
 color:#ffd700;
-letter-spacing:2px;
-text-shadow:0 0 10px #ffd700,0 0 20px #ffae00,0 0 40px #ffae00;
-animation:glow 1.5s infinite alternate;
+text-shadow:0 0 10px #ffd700,0 0 20px #ffae00;
+margin-bottom:20px;
 }
-
-/* subtitle */
 
 .subtitle{
-margin-top:15px;
-font-size:20px;
-color:#e3f6ff;
-animation:fadeUp 2s ease;
+font-size:18px;
+margin-bottom:30px;
 }
 
-/* loading bar */
-
-.loader{
-width:260px;
-height:8px;
-background:rgba(255,255,255,0.2);
-border-radius:20px;
-margin:30px auto;
-overflow:hidden;
+.btn{
+padding:14px 28px;
+border:none;
+border-radius:10px;
+background:linear-gradient(90deg,#00c6ff,#0072ff);
+color:white;
+font-size:16px;
+cursor:pointer;
 }
 
-.bar{
-height:100%;
-width:0;
-background:linear-gradient(90deg,#ffd700,#00c6ff);
-animation:load 3s linear forwards;
-}
-
-/* loading text */
-
-.loading{
-margin-top:10px;
-font-size:14px;
-color:#d8f3ff;
-}
-
-/* animations */
-
-@keyframes glow{
-from{
-text-shadow:0 0 10px #ffd700,0 0 20px #ffae00;
-}
-to{
-text-shadow:0 0 20px #fff176,0 0 40px #ff9800;
-}
-}
-
-@keyframes fadeIn{
-from{
-opacity:0;
-transform:scale(0.8);
-}
-to{
-opacity:1;
-transform:scale(1);
-}
-}
-
-@keyframes fadeUp{
-from{
-opacity:0;
-transform:translateY(30px);
-}
-to{
-opacity:1;
-transform:translateY(0);
-}
-}
-
-@keyframes load{
-from{width:0;}
-to{width:100%;}
+.btn:hover{
+transform:scale(1.05);
 }
 
 </style>
@@ -127,38 +64,29 @@ to{width:100%;}
 
 <div class="subtitle">Your Trust, Our Priority</div>
 
-<div class="loader">
-<div class="bar"></div>
-</div>
-
-<div class="loading">
-Opening Secure Banking System...
-</div>
+<button class="btn" onclick="startBank()">Enter S.K Bank</button>
 
 </div>
 
-<!-- Intro Sound -->
-
-<audio id="introSound" autoplay>
+<audio id="introSound">
 <source src="sk_bank_intro.mp3" type="audio/mpeg">
 </audio>
 
 <script>
 
-/* play sound */
+function startBank(){
 
-window.onload=function(){
-document.getElementById("introSound").play();
-}
+let sound=document.getElementById("introSound");
 
-/* open homepage after 4 seconds */
+sound.play();
 
 setTimeout(function(){
 window.location.href="home.html";
-},4000);
+},3000);
+
+}
 
 </script>
 
 </body>
 </html>
-

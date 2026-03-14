@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>S.K Bank ATM Card Download</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:Arial,sans-serif;
+    }
+
+    body{
+      min-height:100vh;
+      background:linear-gradient(135deg,#d9d9ef,#cfd5f7);
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      padding:20px;
+    }
+
+    .container{
+      width:100%;
+      max-width:700px;
+      background:#ffffff;
+      border-radius:24px;
+      padding:30px;
+      box-shadow:0 20px 50px rgba(0,0,0,0.15);
+      animation:fadeIn 0.8s ease;
+    }
+
+    @keyframes fadeIn{
+      from{opacity:0;transform:translateY(30px);}
+      to{opacity:1;transform:translateY(0);}
+    }
+
+    h1{
+      text-align:center;
+      margin-bottom:8px;
+      color:#1f2d5a;
+      font-size:30px;
+    }
+
+    .sub{
+      text-align:center;
+      color:#5c678a;
+      margin-bottom:22px;
+      font-size:14px;
+    }
+
+    .form-group{
+      margin-bottom:16px;
+    }
+
+    label{
+      display:block;
+      margin-bottom:8px;
+      font-weight:bold;
+      color:#24345f;
+      font-size:14px;
+    }
+
+    input{
+      width:100%;
+      padding:14px;
+      border:1px solid #cfd6f3;
+      border-radius:12px;
+      font-size:15px;
+      outline:none;
+    }
+
+    input:focus{
+      border-color:#6b7cff;
+      box-shadow:0 0 0 3px rgba(107,124,255,0.15);
+    }
+
+    .btn{
+      width:100%;
+      border:none;
+      padding:14px;
+      border-radius:12px;
+      font-size:15px;
+      font-weight:bold;
+      cursor:pointer;
+      margin-top:10px;
+      transition:0.3s;
+    }
+
+    .search-btn{
+      background:linear-gradient(90deg,#5b6cff,#7d5fff);
+      color:#fff;
+    }
+
+    .search-btn:hover,
+    .action-btn:hover{
+      transform:translateY(-2px);
+    }
+
+    .message{
+      display:none;
+      margin-top:15px;
+      padding:12px;
+      border-radius:12px;
+      text-align:center;
+      font-size:14px;
+    }
+
+    .success{
+      display:block;
+      background:#e7fff1;
+      color:#127a3f;
+      border:1px solid #a4e4bc;
+    }
+
+    .error{
+      display:block;
+      background:#fff0f0;
+      color:#c53131;
+      border:1px solid #f2b4b4;
+    }
+
+    .card-wrapper{
+      margin-top:28px;
+      display:none;
+      animation:zoomIn 0.6s ease;
+    }
+
+    @keyframes zoomIn{
+      from{opacity:0;transform:scale(0.9);}
+      to{opacity:1;transform:scale(1);}
+    }
+
+    .atm-card{
+      position:relative;
+      width:100%;
+      max-width:430px;
+      height:260px;
+      margin:auto;
+      border-radius:22px;
+      overflow:hidden;
+      background:
+        linear-gradient(135deg,#37005d 0%,#78106f 28%,#ff2476 58%,#6d0f78 100%);
+      box-shadow:0 18px 35px rgba(54,43,108,0.30);
+      color:#fff;
+      padding:26px;
+    }
+
+    .atm-card::before{
+      content:"";
+      position:absolute;
+      top:-20px;
+      left:90px;
+      width:250px;
+      height:250px;
+      background:radial-gradient(circle,rgba(255,255,255,0.35),rgba(255,255,255,0.02) 60%,transparent 70%);
+      transform:rotate(20deg);
+      filter:blur(4px);
+    }
+
+    .atm-card::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(120deg,rgba(255,255,255,0.10) 20%,transparent 20%,transparent 50%,rgba(255,255,255,0.08) 50%,transparent 75%);
+      pointer-events:none;
+    }
+
+    .bank-name{
+      position:relative;
+      z-index:2;
+      font-size:28px;
+      font-weight:bold;
+      letter-spacing:1px;
+      margin-bottom:30px;
+    }
+
+    .chip-row{
+      position:relative;
+      z-index:2;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:28px;
+    }
+
+    .chip{
+      width:54px;
+      height:40px;
+      border-radius:8px;
+      background:linear-gradient(135deg,#e0b44c,#f5d47a,#b8831f);
+      box-shadow:inset 0 0 2px rgba(0,0,0,0.4);
+    }
+
+    .tap{
+      font-size:28px;
+      opacity:0.9;
+    }
+
+    .sim-chip{
+      width:52px;
+      height:34px;
+      border-radius:6px;
+      background:linear-gradient(135deg,#efefef,#bfbfbf,#f8f8f8);
+    }
+
+    .card-number{
+      position:relative;
+      z-index:2;
+      font-size:30px;
+      letter-spacing:3px;
+      margin-bottom:24px;
+      text-shadow:0 1px 2px rgba(0,0,0,0.2);
+      word-spacing:6px;
+    }
+
+    .bottom-row{
+      position:relative;
+      z-index:2;
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-end;
+      gap:15px;
+    }
+
+    .holder-block small,
+    .valid-block small{
+      display:block;
+      font-size:10px;
+      opacity:0.85;
+      margin-bottom:4px;
+      letter-spacing:1px;
+    }
+
+    .holder-name{
+      font-size:20px;
+      text-transform:uppercase;
+      letter-spacing:1px;
+    }
+
+    .validity{
+      font-size:18px;
+      letter-spacing:2px;
+    }
+
+    .action-row{
+      margin-top:22px;
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      justify-content:center;
+    }
+
+    .action-btn{
+      flex:1 1 180px;
+      border:none;
+      padding:13px;
+      border-radius:12px;
+      cursor:pointer;
+      font-size:15px;
+      font-weight:bold;
+      transition:0.3s;
+    }
+
+    .pdf-btn{
+      background:linear-gradient(90deg,#ff5f6d,#ff7b54);
+      color:#fff;
+    }
+
+    .print-btn{
+      background:linear-gradient(90deg,#00b09b,#2ad39b);
+      color:#fff;
+    }
+
+    @media(max-width:520px){
+      .atm-card{
+        height:auto;
+        min-height:240px;
+        padding:20px;
+      }
+
+      .bank-name{
+        font-size:22px;
+      }
+
+      .card-number{
+        font-size:22px;
+        letter-spacing:2px;
+      }
+
+      .holder-name{
+        font-size:16px;
+      }
+
+      .validity{
+        font-size:15px;
+      }
+    }
+
+    @media print{
+      body{
+        background:#fff;
+      }
+
+      .container > *:not(.card-wrapper){
+        display:none !important;
+      }
+
+      .card-wrapper{
+        display:block !important;
+        margin-top:0;
+      }
+
+      .action-row{
+        display:none !important;
+      }
+
+      .atm-card{
+        box-shadow:none;
+        margin-top:40px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>S.K Bank</h1>
+    <p class="sub">ATM Card Download & Print</p>
+
+    <div class="form-group">
+      <label for="searchCardNumber">Enter ATM Card Number</label>
+      <input type="text" id="searchCardNumber" placeholder="Enter 16 digit ATM card number" maxlength="19" />
+    </div>
+
+    <button class="btn search-btn" onclick="searchATMCard()">Show ATM Card</button>
+
+    <div id="messageBox" class="message"></div>
+
+    <div id="cardWrapper" class="card-wrapper">
+      <div id="atmCard" class="atm-card">
+        <div class="bank-name" id="showBankName">S.K BANK</div>
+
+        <div class="chip-row">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div class="chip"></div>
+            <div class="tap">)))</div>
+          </div>
+          <div class="sim-chip"></div>
+        </div>
+
+        <div class="card-number" id="showCardNumber">0000 0000 0000 0000</div>
+
+        <div class="bottom-row">
+          <div class="holder-block">
+            <small>CARD HOLDER NAME</small>
+            <div class="holder-name" id="showHolderName">CARD HOLDER</div>
+          </div>
+
+          <div class="valid-block">
+            <small>VALID THRU</small>
+            <div class="validity" id="showValidity">00/00</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="action-row">
+        <button class="action-btn pdf-btn" onclick="downloadPDF()">Download PDF</button>
+        <button class="action-btn print-btn" onclick="printCard()">Print Card</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const messageBox = document.getElementById("messageBox");
+    const cardWrapper = document.getElementById("cardWrapper");
+    const showBankName = document.getElementById("showBankName");
+    const showCardNumber = document.getElementById("showCardNumber");
+    const showHolderName = document.getElementById("showHolderName");
+    const showValidity = document.getElementById("showValidity");
+
+    function getCards(){
+      return JSON.parse(localStorage.getItem("sk_bank_atm_cards")) || [];
+    }
+
+    function showMessage(text, type){
+      messageBox.style.display = "block";
+      messageBox.className = "message " + type;
+      messageBox.textContent = text;
+    }
+
+    function hideMessage(){
+      messageBox.style.display = "none";
+    }
+
+    function formatCardNumber(number){
+      return number.replace(/\D/g, "").replace(/(.{4})/g, "$1 ").trim();
+    }
+
+    function searchATMCard(){
+      const input = document.getElementById("searchCardNumber").value.trim().replace(/\s/g, "");
+      const cards = getCards();
+
+      if(!/^\d{16}$/.test(input)){
+        showMessage("Please enter a valid 16 digit ATM card number", "error");
+        cardWrapper.style.display = "none";
+        return;
+      }
+
+      const card = cards.find(c => c.cardNumber === input && c.status === "APPROVED");
+
+      if(!card){
+        showMessage("Approved ATM card not found", "error");
+        cardWrapper.style.display = "none";
+        return;
+      }
+
+      hideMessage();
+
+      showBankName.textContent = "S.K BANK";
+      showCardNumber.textContent = formatCardNumber(card.cardNumber);
+      showHolderName.textContent = card.holderName || "CARD HOLDER";
+      showValidity.textContent = card.validity || "00/00";
+
+      cardWrapper.style.display = "block";
+    }
+
+    async function downloadPDF(){
+      const { jsPDF } = window.jspdf;
+      const card = document.getElementById("atmCard");
+
+      const canvas = await html2canvas(card, {
+        scale: 3,
+        useCORS: true,
+        backgroundColor: null
+      });
+
+      const imgData = canvas.toDataURL("image/png");
+
+      const pdf = new jsPDF({
+        orientation: "landscape",
+        unit: "mm",
+        format: [60, 95]
+      });
+
+      pdf.addImage(imgData, "PNG", 0, 0, 95, 60);
+      pdf.save("sk-bank-atm-card.pdf");
+    }
+
+    function printCard(){
+      window.print();
+    }
+  </script>
+
+</body>
+</html>

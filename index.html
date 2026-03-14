@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>S.K Bank Intro</title>
+<title>S.K Bank Entry</title>
 
 <style>
 
@@ -21,36 +21,87 @@ justify-content:center;
 align-items:center;
 background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
 color:white;
+overflow:hidden;
 }
 
-.intro{
+/* container */
+
+.container{
 text-align:center;
 }
 
+/* title */
+
 .title{
-font-size:48px;
+font-size:50px;
 color:#ffd700;
 text-shadow:0 0 10px #ffd700,0 0 20px #ffae00;
-margin-bottom:20px;
+margin-bottom:10px;
+animation:glow 2s infinite alternate;
 }
+
+/* subtitle */
 
 .subtitle{
-font-size:18px;
 margin-bottom:30px;
+font-size:18px;
 }
 
+/* button */
+
 .btn{
-padding:14px 28px;
+padding:14px 30px;
 border:none;
-border-radius:10px;
+border-radius:12px;
 background:linear-gradient(90deg,#00c6ff,#0072ff);
 color:white;
 font-size:16px;
 cursor:pointer;
 }
 
-.btn:hover{
-transform:scale(1.05);
+/* loader */
+
+.loader{
+margin-top:30px;
+display:none;
+}
+
+.bar{
+width:0;
+height:8px;
+background:linear-gradient(90deg,#ffd700,#00c6ff);
+border-radius:10px;
+animation:load 3s forwards;
+}
+
+.loadingBox{
+width:260px;
+height:8px;
+background:rgba(255,255,255,0.2);
+border-radius:10px;
+margin:auto;
+overflow:hidden;
+}
+
+.loadingText{
+margin-top:10px;
+font-size:14px;
+}
+
+/* animations */
+
+@keyframes load{
+from{width:0}
+to{width:100%}
+}
+
+@keyframes glow{
+from{
+text-shadow:0 0 10px #ffd700;
+}
+to{
+text-shadow:0 0 30px #ff9800;
+}
 }
 
 </style>
@@ -58,7 +109,7 @@ transform:scale(1.05);
 
 <body>
 
-<div class="intro">
+<div class="container">
 
 <div class="title">S.K BANK</div>
 
@@ -66,7 +117,21 @@ transform:scale(1.05);
 
 <button class="btn" onclick="startBank()">Enter S.K Bank</button>
 
+<div class="loader" id="loader">
+
+<div class="loadingBox">
+<div class="bar"></div>
 </div>
+
+<div class="loadingText">
+Starting Secure Banking System...
+</div>
+
+</div>
+
+</div>
+
+<!-- intro sound -->
 
 <audio id="introSound">
 <source src="sk_bank_intro.mp3" type="audio/mpeg">
@@ -76,12 +141,20 @@ transform:scale(1.05);
 
 function startBank(){
 
+document.getElementById("loader").style.display="block";
+
+document.querySelector(".btn").style.display="none";
+
 let sound=document.getElementById("introSound");
 
 sound.play();
 
+/* open homepage */
+
 setTimeout(function(){
+
 window.location.href="home.html";
+
 },3000);
 
 }

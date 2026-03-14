@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>S.K Bank Login</title>
+  <title>S.K Bank Deposit Page</title>
   <style>
     * {
       margin: 0;
@@ -21,14 +21,14 @@
       padding: 20px;
     }
 
-    .container {
+    .deposit-container {
       width: 100%;
       max-width: 450px;
-      background: rgba(255, 255, 255, 0.12);
+      background: rgba(255,255,255,0.12);
       backdrop-filter: blur(12px);
       border-radius: 22px;
       padding: 28px;
-      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.35);
+      box-shadow: 0 12px 35px rgba(0,0,0,0.35);
       color: #fff;
       animation: fadeInUp 0.8s ease;
     }
@@ -144,7 +144,7 @@
       border: 1px solid rgba(255, 82, 82, 0.35);
     }
 
-    .details-box {
+    .result-box {
       margin-top: 18px;
       padding: 16px;
       border-radius: 16px;
@@ -164,7 +164,7 @@
       }
     }
 
-    .details-box p {
+    .result-box p {
       margin: 8px 0;
       font-size: 15px;
       color: #eef7ff;
@@ -191,44 +191,52 @@
 </head>
 <body>
 
-  <div class="container">
+  <div class="deposit-container">
     <h1>S.K Bank</h1>
-    <p class="subtitle">Login Page</p>
+    <p class="subtitle">Deposit Amount Page</p>
 
-    <form id="loginForm">
+    <form id="depositForm">
       <div class="form-group">
-        <label for="accountNumber">S.K Bank Account Number</label>
+        <label for="accountNumber">Account Number</label>
         <input type="text" id="accountNumber" placeholder="Enter account number" required />
       </div>
 
       <div class="form-group">
-        <label for="mobileNumber">Mobile Number</label>
-        <input type="text" id="mobileNumber" placeholder="Enter mobile number" maxlength="10" required />
+        <label for="customerNumber">Customer Number</label>
+        <input type="text" id="customerNumber" placeholder="Enter customer number" required />
       </div>
 
-      <button type="submit" class="btn">Submit Login</button>
+      <div class="form-group">
+        <label for="amount">Deposit Amount</label>
+        <input type="number" id="amount" placeholder="Enter deposit amount" min="1" step="0.01" required />
+      </div>
+
+      <button type="submit" class="btn">Submit Deposit</button>
     </form>
 
     <div id="messageBox" class="message"></div>
 
-    <div id="detailsBox" class="details-box">
+    <div id="resultBox" class="result-box">
       <p><strong>Bank Name:</strong> S.K Bank</p>
-      <p><strong>Full Name:</strong> <span id="showName"></span></p>
       <p><strong>Account Number:</strong> <span id="showAccount"></span></p>
       <p><strong>Customer Number:</strong> <span id="showCustomer"></span></p>
       <div class="balance">
-        Bank Balance: ₹<span id="showBalance"></span>
+        New Balance: ₹<span id="showBalance"></span>
       </div>
     </div>
   </div>
 
   <script>
-    const loginForm = document.getElementById("loginForm");
+    const depositForm = document.getElementById("depositForm");
     const messageBox = document.getElementById("messageBox");
-    const detailsBox = document.getElementById("detailsBox");
+    const resultBox = document.getElementById("resultBox");
 
     function getUsers() {
       return JSON.parse(localStorage.getItem("sk_bank_users")) || [];
+    }
+
+    function saveUsers(users) {
+      localStorage.setItem("sk_bank_users", JSON.stringify(users));
     }
 
     function showMessage(text, type) {
@@ -237,40 +245,43 @@
       messageBox.textContent = text;
     }
 
-    loginForm.addEventListener("submit", function(e) {
+    depositForm.addEventListener("submit", function(e) {
       e.preventDefault();
 
       const accountNumber = document.getElementById("accountNumber").value.trim();
-      const mobileNumber = document.getElementById("mobileNumber").value.trim();
+      const customerNumber = document.getElementById("customerNumber").value.trim();
+      const amount = parseFloat(document.getElementById("amount").value);
 
-      if (!/^[0-9]{10}$/.test(mobileNumber)) {
-        showMessage("Please enter valid 10 digit mobile number.", "error");
-        detailsBox.style.display = "none";
+      if (!accountNumber || !customerNumber || isNaN(amount) || amount <= 0) {
+        showMessage("Please enter valid account number, customer number and amount.", "error");
+        resultBox.style.display = "none";
         return;
       }
 
       const users = getUsers();
 
-      const foundUser = users.find(user =>
+      const userIndex = users.findIndex(user =>
         user.accountNumber === accountNumber &&
-        user.mobile === mobileNumber
+        user.customerNumber === customerNumber
       );
 
-      if (!foundUser) {
-        showMessage("Invalid account number or mobile number.", "error");
-        detailsBox.style.display = "none";
+      if (userIndex === -1) {
+        showMessage("Invalid account number or customer number.", "error");
+        resultBox.style.display = "none";
         return;
       }
 
-      showMessage("Login successful.", "success");
+      users[userIndex].balance = Number(users[userIndex].balance || 0) + amount;
+      saveUsers(users);
 
-      document.getElementById("showName").textContent = foundUser.fullName || "";
-      document.getElementById("showAccount").textContent = foundUser.accountNumber || "";
-      document.getElementById("showCustomer").textContent = foundUser.customerNumber || "";
-      document.getElementById("showBalance").textContent = Number(foundUser.balance || 0).toFixed(2);
+      showMessage("Deposit successful! Balance increased.", "success");
 
-      detailsBox.style.display = "block";
-      loginForm.reset();
+      document.getElementById("showAccount").textContent = users[userIndex].accountNumber;
+      document.getElementById("showCustomer").textContent = users[userIndex].customerNumber;
+      document.getElementById("showBalance").textContent = Number(users[userIndex].balance).toFixed(2);
+
+      resultBox.style.display = "block";
+      depositForm.reset();
     });
   </script>
 

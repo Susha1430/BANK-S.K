@@ -1,36 +1,328 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>S.K Bank Registration</title>
-<link rel="stylesheet" href="style.css">
-</head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>S.K Bank Registration</title>
+  <style>
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:Arial,sans-serif;
+    }
 
+    body{
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+      padding:20px;
+    }
+
+    .container{
+      width:100%;
+      max-width:500px;
+      background:rgba(255,255,255,0.12);
+      backdrop-filter:blur(12px);
+      border-radius:22px;
+      padding:28px;
+      box-shadow:0 12px 35px rgba(0,0,0,0.35);
+      color:#fff;
+      animation:fadeInUp 0.8s ease;
+    }
+
+    @keyframes fadeInUp{
+      from{
+        opacity:0;
+        transform:translateY(25px);
+      }
+      to{
+        opacity:1;
+        transform:translateY(0);
+      }
+    }
+
+    h1{
+      text-align:center;
+      margin-bottom:8px;
+      font-size:30px;
+    }
+
+    .subtitle{
+      text-align:center;
+      font-size:14px;
+      color:#d8f3ff;
+      margin-bottom:22px;
+    }
+
+    .form-group{
+      margin-bottom:15px;
+      animation:fadeIn 0.7s ease;
+    }
+
+    @keyframes fadeIn{
+      from{opacity:0;}
+      to{opacity:1;}
+    }
+
+    label{
+      display:block;
+      margin-bottom:6px;
+      font-size:14px;
+      font-weight:bold;
+      color:#eefaff;
+    }
+
+    input, select{
+      width:100%;
+      padding:13px;
+      border:none;
+      outline:none;
+      border-radius:12px;
+      font-size:15px;
+      background:rgba(255,255,255,0.93);
+      color:#222;
+      transition:0.3s ease;
+    }
+
+    input:focus, select:focus{
+      transform:scale(1.01);
+      box-shadow:0 0 0 3px rgba(0,198,255,0.25);
+    }
+
+    .btn{
+      width:100%;
+      padding:14px;
+      border:none;
+      border-radius:12px;
+      background:linear-gradient(90deg,#00c6ff,#0072ff);
+      color:#fff;
+      font-size:16px;
+      font-weight:bold;
+      cursor:pointer;
+      transition:0.3s ease;
+      margin-top:8px;
+    }
+
+    .btn:hover{
+      transform:translateY(-2px);
+      box-shadow:0 8px 18px rgba(0,114,255,0.35);
+    }
+
+    .message{
+      margin-top:16px;
+      padding:12px;
+      border-radius:12px;
+      text-align:center;
+      display:none;
+      font-size:14px;
+      animation:popIn 0.4s ease;
+    }
+
+    @keyframes popIn{
+      from{
+        opacity:0;
+        transform:scale(0.92);
+      }
+      to{
+        opacity:1;
+        transform:scale(1);
+      }
+    }
+
+    .success{
+      background:rgba(0,200,83,0.18);
+      color:#b9ffd0;
+      border:1px solid rgba(0,200,83,0.35);
+    }
+
+    .error{
+      background:rgba(255,82,82,0.16);
+      color:#ffd1d1;
+      border:1px solid rgba(255,82,82,0.35);
+    }
+
+    .generated-box{
+      margin-top:18px;
+      padding:16px;
+      border-radius:16px;
+      background:rgba(255,255,255,0.10);
+      display:none;
+      animation:zoomIn 0.5s ease;
+    }
+
+    @keyframes zoomIn{
+      from{
+        opacity:0;
+        transform:scale(0.92);
+      }
+      to{
+        opacity:1;
+        transform:scale(1);
+      }
+    }
+
+    .generated-box p{
+      margin:8px 0;
+      font-size:15px;
+      color:#eef7ff;
+      word-break:break-word;
+    }
+
+    .highlight{
+      font-weight:bold;
+      color:#fff;
+    }
+  </style>
+</head>
 <body>
 
-<h1 class="logo" id="logo"></h1>
+  <div class="container">
+    <h1>S.K Bank</h1>
+    <p class="subtitle">Zero Balance Account Registration</p>
 
-<div class="box">
+    <form id="registerForm">
+      <div class="form-group">
+        <label for="firstName">First Name</label>
+        <input type="text" id="firstName" placeholder="Enter first name" required />
+      </div>
 
-<h2>Open Zero Balance Account</h2>
+      <div class="form-group">
+        <label for="lastName">Last Name</label>
+        <input type="text" id="lastName" placeholder="Enter last name" required />
+      </div>
 
-<input id="fname" placeholder="First Name">
-<input id="lname" placeholder="Last Name">
-<input type="date" id="dob">
+      <div class="form-group">
+        <label for="dob">Day of Birth</label>
+        <input type="date" id="dob" required />
+      </div>
 
-<select id="gender">
-<option>Male</option>
-<option>Female</option>
-</select>
+      <div class="form-group">
+        <label for="gender">Select Gender</label>
+        <select id="gender" required>
+          <option value="">Select gender</option>
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+        </select>
+      </div>
 
-<input id="mobile" placeholder="Mobile Number">
+      <div class="form-group">
+        <label for="mobile">Mobile Number</label>
+        <input type="text" id="mobile" placeholder="Enter mobile number" maxlength="10" required />
+      </div>
 
-<button onclick="register()">Submit</button>
+      <button type="submit" class="btn">Submit Registration</button>
+    </form>
 
-<p id="msg"></p>
+    <div id="messageBox" class="message"></div>
 
-</div>
+    <div id="generatedBox" class="generated-box">
+      <p><strong>Bank Name:</strong> S.K Bank</p>
+      <p><strong>Full Name:</strong> <span id="showFullName" class="highlight"></span></p>
+      <p><strong>Account Number:</strong> <span id="showAccountNumber" class="highlight"></span></p>
+      <p><strong>Customer Number:</strong> <span id="showCustomerNumber" class="highlight"></span></p>
+      <p><strong>Balance:</strong> <span class="highlight">₹0.00</span></p>
+    </div>
+  </div>
 
-<script src="script.js"></script>
+  <script>
+    const registerForm = document.getElementById("registerForm");
+    const messageBox = document.getElementById("messageBox");
+    const generatedBox = document.getElementById("generatedBox");
+
+    function getUsers() {
+      return JSON.parse(localStorage.getItem("sk_bank_users")) || [];
+    }
+
+    function saveUsers(users) {
+      localStorage.setItem("sk_bank_users", JSON.stringify(users));
+    }
+
+    function generateNumber(length) {
+      let result = "";
+      for (let i = 0; i < length; i++) {
+        result += Math.floor(Math.random() * 10);
+      }
+      return result;
+    }
+
+    function uniqueAccountNumber(users) {
+      let accountNumber;
+      do {
+        accountNumber = generateNumber(12);
+      } while (users.some(user => user.accountNumber === accountNumber));
+      return accountNumber;
+    }
+
+    function uniqueCustomerNumber(users) {
+      let customerNumber;
+      do {
+        customerNumber = generateNumber(8);
+      } while (users.some(user => user.customerNumber === customerNumber));
+      return customerNumber;
+    }
+
+    function showMessage(text, type) {
+      messageBox.style.display = "block";
+      messageBox.className = "message " + type;
+      messageBox.textContent = text;
+    }
+
+    registerForm.addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const firstName = document.getElementById("firstName").value.trim();
+      const lastName = document.getElementById("lastName").value.trim();
+      const dob = document.getElementById("dob").value;
+      const gender = document.getElementById("gender").value;
+      const mobile = document.getElementById("mobile").value.trim();
+
+      if (!/^[0-9]{10}$/.test(mobile)) {
+        showMessage("Please enter valid 10 digit mobile number.", "error");
+        generatedBox.style.display = "none";
+        return;
+      }
+
+      let users = getUsers();
+
+      const mobileExists = users.some(user => user.mobile === mobile);
+      if (mobileExists) {
+        showMessage("This mobile number is already registered one time only.", "error");
+        generatedBox.style.display = "none";
+        return;
+      }
+
+      const fullName = firstName + " " + lastName;
+      const accountNumber = uniqueAccountNumber(users);
+      const customerNumber = uniqueCustomerNumber(users);
+
+      const newUser = {
+        firstName,
+        lastName,
+        fullName,
+        dob,
+        gender,
+        mobile,
+        accountNumber,
+        customerNumber,
+        balance: 0
+      };
+
+      users.push(newUser);
+      saveUsers(users);
+
+      showMessage("Registration successful.", "success");
+
+      document.getElementById("showFullName").textContent = fullName;
+      document.getElementById("showAccountNumber").textContent = accountNumber;
+      document.getElementById("showCustomerNumber").textContent = customerNumber;
+
+      generatedBox.style.display = "block";
+      registerForm.reset();
+    });
+  </script>
 
 </body>
 </html>

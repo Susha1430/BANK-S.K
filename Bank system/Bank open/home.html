@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>S.K Bank Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  
+  <h1 class="logo">S.K BANK</h1>
+  
+  <div class="box">
+    
+    <h2>Account Details</h2>
+    
+    <p id="name"></p>
+    <p id="acc"></p>
+    <p id="cid"></p>
+    <p id="bal"></p>
+    
+  </div>
+  
+  <script>
+    let user = JSON.parse(localStorage.getItem("loginUser"))
+    
+    document.getElementById("name").innerHTML = "Name : " + user.fname + " " + user.lname
+    document.getElementById("acc").innerHTML = "Account Number : " + user.account
+    document.getElementById("cid").innerHTML = "Customer ID : " + user.customer
+    document.getElementById("bal").innerHTML = "Balance : ₹" + user.balance
+  </script>
+  
+</body>
+
+</html>

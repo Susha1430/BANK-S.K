@@ -239,6 +239,31 @@
       localStorage.setItem("sk_bank_users", JSON.stringify(users));
     }
 
+    function getTransactions() {
+      return JSON.parse(localStorage.getItem("sk_bank_transactions")) || [];
+    }
+
+    function saveTransactions(transactions) {
+      localStorage.setItem("sk_bank_transactions", JSON.stringify(transactions));
+    }
+
+    function addTransaction(accountNumber, customerNumber, type, amount) {
+      const transactions = getTransactions();
+      const now = new Date();
+
+      const transaction = {
+        accountNumber: accountNumber,
+        customerNumber: customerNumber,
+        type: type,
+        amount: Number(amount).toFixed(2),
+        date: now.toLocaleDateString(),
+        time: now.toLocaleTimeString()
+      };
+
+      transactions.push(transaction);
+      saveTransactions(transactions);
+    }
+
     function showMessage(text, type) {
       messageBox.style.display = "block";
       messageBox.className = "message " + type;
@@ -274,7 +299,9 @@
       users[userIndex].balance = Number(users[userIndex].balance || 0) + amount;
       saveUsers(users);
 
-      showMessage("Deposit successful! Balance increased.", "success");
+      addTransaction(accountNumber, customerNumber, "DEPOSIT", amount);
+
+      showMessage("Deposit successful! Balance increased and transaction saved.", "success");
 
       document.getElementById("showAccount").textContent = users[userIndex].accountNumber;
       document.getElementById("showCustomer").textContent = users[userIndex].customerNumber;

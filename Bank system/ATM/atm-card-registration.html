@@ -230,7 +230,7 @@
       <p class="big-number" id="showCardNumber">PENDING APPROVAL</p>
       <div class="small-row">
         <div><strong>Validity:</strong> <span id="showValidity">--/--</span></div>
-        <div><strong>Type:</strong> Master Card</div>
+        <div><strong>Type:</strong> <span id="showType">Master Card</span></div>
       </div>
     </div>
   </div>
@@ -242,6 +242,12 @@
     const holderNameInput = document.getElementById("holderName");
     const messageBox = document.getElementById("messageBox");
     const cardBox = document.getElementById("cardBox");
+
+    const showHolderName = document.getElementById("showHolderName");
+    const showStatus = document.getElementById("showStatus");
+    const showCardNumber = document.getElementById("showCardNumber");
+    const showValidity = document.getElementById("showValidity");
+    const showType = document.getElementById("showType");
 
     const ATM_CHARGE = 250;
 
@@ -270,12 +276,39 @@
     function hideMessage() {
       messageBox.style.display = "none";
       messageBox.textContent = "";
+      messageBox.className = "message";
     }
 
-    function findUser() {
+    function hideCardBox() {
+      cardBox.style.display = "none";
+    }
+
+    function showCardRequest(cardData) {
+      showHolderName.textContent = cardData.holderName || "";
+      showStatus.textContent = cardData.status || "PENDING";
+      showCardNumber.textContent = cardData.cardNumber && cardData.cardNumber.trim() !== ""
+        ? cardData.cardNumber
+        : "PENDING APPROVAL";
+      showValidity.textContent = cardData.validity && cardData.validity.trim() !== ""
+        ? cardData.validity
+        : "--/--";
+      showType.textContent = cardData.cardType || "Master Card";
+      cardBox.style.display = "block";
+    }
+
+    function findUserAndCard() {
       const accountNumber = accountNumberInput.value.trim();
       const customerNumber = customerNumberInput.value.trim();
+
+      if (!accountNumber || !customerNumber) {
+        holderNameInput.value = "";
+        hideMessage();
+        hideCardBox();
+        return null;
+      }
+
       const users = getUsers();
+      const cards = getCards();
 
       const foundUser = users.find(user =>
         user.accountNumber === accountNumber &&
@@ -284,30 +317,42 @@
 
       if (foundUser) {
         holderNameInput.value = foundUser.fullName || "";
-        hideMessage();
+
+        const existingCard = cards.find(card =>
+          card.accountNumber === accountNumber &&
+          card.customerNumber === customerNumber
+        );
+
+        if (existingCard) {
+          showMessage("ATM card request already found for this account.", "success");
+          showCardRequest(existingCard);
+        } else {
+          hideMessage();
+          hideCardBox();
+        }
       } else {
         holderNameInput.value = "";
+        hideMessage();
+        hideCardBox();
       }
 
       return foundUser;
     }
 
-    function showCardRequest(cardData) {
-      document.getElementById("showHolderName").textContent = cardData.holderName || "";
-      document.getElementById("showStatus").textContent = cardData.status || "";
-      document.getElementById("showCardNumber").textContent = cardData.cardNumber ? cardData.cardNumber : "PENDING APPROVAL";
-      document.getElementById("showValidity").textContent = cardData.validity || "--/--";
-      cardBox.style.display = "block";
-    }
-
-    accountNumberInput.addEventListener("input", findUser);
-    customerNumberInput.addEventListener("input", findUser);
+    accountNumberInput.addEventListener("input", findUserAndCard);
+    customerNumberInput.addEventListener("input", findUserAndCard);
 
     atmForm.addEventListener("submit", function(e) {
       e.preventDefault();
 
       const accountNumber = accountNumberInput.value.trim();
       const customerNumber = customerNumberInput.value.trim();
+
+      if (!accountNumber || !customerNumber) {
+        showMessage("Please enter account number and customer number.", "error");
+        hideCardBox();
+        return;
+      }
 
       let users = getUsers();
       let cards = getCards();
@@ -319,7 +364,8 @@
 
       if (userIndex === -1) {
         showMessage("Invalid account number or customer number.", "error");
-        cardBox.style.display = "none";
+        hideCardBox();
+        holderNameInput.value = "";
         return;
       }
 
@@ -338,7 +384,7 @@
 
       if (Number(user.balance || 0) < ATM_CHARGE) {
         showMessage("Insufficient balance. Need ₹250 for ATM registration.", "error");
-        cardBox.style.display = "none";
+        hideCardBox();
         return;
       }
 
@@ -349,14 +395,15 @@
       const newCardRequest = {
         accountNumber: accountNumber,
         customerNumber: customerNumber,
-        holderName: user.fullName,
+        holderName: user.fullName || "",
         mobileNumber: user.mobileNumber || "",
         status: "PENDING",
         cardNumber: "",
         validity: "",
         cardType: "Master Card",
         pin: "",
-        charge: ATM_CHARGE
+        charge: ATM_CHARGE,
+        createdAt: new Date().toLocaleString()
       };
 
       cards.push(newCardRequest);
@@ -369,5 +416,6 @@
       holderNameInput.value = "";
     });
   </script>
+
 </body>
 </html>

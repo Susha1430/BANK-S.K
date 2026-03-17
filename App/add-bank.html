@@ -8,40 +8,40 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Arial;}
 body{
-height:100vh; display:flex; justify-content:center; align-items:center;
-background:linear-gradient(135deg,#0f2027,#203a43,#2c5364); color:white;
+  height:100vh; display:flex; justify-content:center; align-items:center;
+  background:linear-gradient(135deg,#0f2027,#203a43,#2c5364); color:white;
 }
 .container{
-width:90%; max-width:400px;
-background:rgba(255,255,255,0.12); backdrop-filter:blur(12px);
-padding:30px; border-radius:20px; box-shadow:0 10px 30px rgba(0,0,0,0.5);
-animation:fadeIn .8s; text-align:center;
+  width:90%; max-width:400px;
+  background:rgba(255,255,255,0.12); backdrop-filter:blur(12px);
+  padding:30px; border-radius:20px; box-shadow:0 10px 30px rgba(0,0,0,0.5);
+  animation:fadeIn .8s; text-align:center;
 }
 @keyframes fadeIn{
-from{opacity:0;transform:translateY(30px);}
-to{opacity:1;transform:translateY(0);}
+  from{opacity:0;transform:translateY(30px);}
+  to{opacity:1;transform:translateY(0);}
 }
 h1{text-align:center;margin-bottom:10px;}
 .subtitle{text-align:center;margin-bottom:25px;color:#dff5ff;}
 input, select{
-width:100%; padding:14px; margin-bottom:15px; border:none; border-radius:10px;
-font-size:16px; outline:none; transition:0.3s;
+  width:100%; padding:14px; margin-bottom:15px; border:none; border-radius:10px;
+  font-size:16px; outline:none; transition:0.3s;
 }
 input:focus, select:focus{
-transform:scale(1.02); box-shadow:0 0 8px rgba(0,198,255,0.5);
+  transform:scale(1.02); box-shadow:0 0 8px rgba(0,198,255,0.5);
 }
 select{appearance:none;background:rgba(255,255,255,0.95); color:#222; cursor:pointer;}
 button{
-width:100%; padding:14px; border:none; border-radius:10px;
-background:linear-gradient(90deg,#00c6ff,#0072ff); color:white;
-font-size:16px; font-weight:bold; cursor:pointer; transition:0.3s;
+  width:100%; padding:14px; border:none; border-radius:10px;
+  background:linear-gradient(90deg,#00c6ff,#0072ff); color:white;
+  font-size:16px; font-weight:bold; cursor:pointer; transition:0.3s;
 }
 button:hover{
-transform:translateY(-3px) scale(1.02);
-box-shadow:0 8px 18px rgba(0,114,255,0.45);
+  transform:translateY(-3px) scale(1.02);
+  box-shadow:0 8px 18px rgba(0,114,255,0.45);
 }
 .message{
-margin-top:15px; padding:10px; border-radius:10px; text-align:center; display:none;
+  margin-top:15px; padding:10px; border-radius:10px; text-align:center; display:none;
 }
 .error{background:#ff4b4b33;color:#ffdada;}
 .success{background:#00ff7a33;color:#caffdf;}
@@ -54,9 +54,9 @@ margin-top:15px; padding:10px; border-radius:10px; text-align:center; display:no
 <h1>S.K Bank</h1>
 <p class="subtitle">Add Bank Account</p>
 
-<!-- Only S.K Bank -->
+<!-- Bank Name (only S.K Bank) -->
 <select id="bankName">
-<option value="S.K Bank">S.K Bank</option>
+  <option value="S.K Bank">S.K Bank</option>
 </select>
 
 <input type="text" id="atmLast6" placeholder="Last 6 Digits of ATM Card">
@@ -71,68 +71,79 @@ margin-top:15px; padding:10px; border-radius:10px; text-align:center; display:no
 </div>
 
 <script>
-function getBankAccounts(){ return JSON.parse(localStorage.getItem("sk_bank_user_accounts")) || []; }
-function saveBankAccounts(accounts){ localStorage.setItem("sk_bank_user_accounts", JSON.stringify(accounts)); }
+/* ---------- STORAGE ---------- */
+function getBankAccounts(){ 
+  return JSON.parse(localStorage.getItem("sk_bank_user_accounts")) || []; 
+}
+function saveBankAccounts(accounts){ 
+  localStorage.setItem("sk_bank_user_accounts", JSON.stringify(accounts)); 
+}
 
+/* ---------- LOGIN CHECK ---------- */
 const loginMobile = localStorage.getItem("io_login_mobile");
 if(!loginMobile){ window.location.href="login.html"; }
 
-function getUsers(){ return JSON.parse(localStorage.getItem("sk_bank_users")) || []; }
+function getUsers(){ 
+  return JSON.parse(localStorage.getItem("sk_bank_users")) || []; 
+}
 const currentUser = getUsers().find(u=>u.mobileNumber===loginMobile);
 if(!currentUser){ window.location.href="login.html"; }
 
+/* ---------- UI MESSAGE ---------- */
 function showMsg(text,type){
-const msg=document.getElementById("msg");
-msg.style.display="block"; msg.className="message "+type; msg.innerText=text;
+  const msg=document.getElementById("msg");
+  msg.style.display="block"; msg.className="message "+type; msg.innerText=text;
 }
 
+/* ---------- GENERATE BANK ACCOUNT NUMBER ---------- */
 function generateBankAccount(){
-return "SK"+Math.floor(100000000+Math.random()*900000000);
+  return "SK"+Math.floor(100000000+Math.random()*900000000); // 9 digits
 }
 
+/* ---------- ADD BANK ACCOUNT ---------- */
 function addBankAccount(){
-const bankName = document.getElementById("bankName").value.trim();
-const atmLast6 = document.getElementById("atmLast6").value.trim();
-const validThru = document.getElementById("validThru").value.trim();
-const pin = document.getElementById("pin").value.trim();
-const rePin = document.getElementById("rePin").value.trim();
+  const bankName = document.getElementById("bankName").value.trim();
+  const atmLast6 = document.getElementById("atmLast6").value.trim();
+  const validThru = document.getElementById("validThru").value.trim();
+  const pin = document.getElementById("pin").value.trim();
+  const rePin = document.getElementById("rePin").value.trim();
 
-if(!bankName||!atmLast6||!validThru||!pin||!rePin){
-showMsg("Fill all fields","error"); return;
-}
-if(pin.length!==4||rePin.length!==4){ showMsg("PIN must be 4 digits","error"); return; }
-if(pin!==rePin){ showMsg("PIN does not match","error"); return; }
+  /* --- VALIDATIONS --- */
+  if(!bankName||!atmLast6||!validThru||!pin||!rePin){
+    showMsg("Fill all fields","error"); return;
+  }
+  if(!/^\d{6}$/.test(atmLast6)){ showMsg("ATM Last 6 digits must be numeric","error"); return; }
+  if(pin.length!==4||rePin.length!==4){ showMsg("PIN must be 4 digits","error"); return; }
+  if(pin!==rePin){ showMsg("PIN does not match","error"); return; }
+  if(!/^(0[1-9]|1[0-2])\/\d{2}$/.test(validThru)){
+    showMsg("Valid/Thru must be in MM/YY format","error"); return;
+  }
 
-/* Optional: validate MM/YY format */
-if(!/^(0[1-9]|1[0-2])\/\d{2}$/.test(validThru)){
-showMsg("Valid/Thru must be in MM/YY format","error"); return;
-}
+  let accounts = getBankAccounts();
+  const newAccountNumber = generateBankAccount();
 
-let accounts = getBankAccounts();
-const newAccountNumber = generateBankAccount();
+  const existing = accounts.find(a=>a.mobileNumber===loginMobile && a.bankName===bankName);
+  if(existing){ showMsg("You already added S.K Bank","error"); return; }
 
-const existing = accounts.find(a=>a.mobileNumber===loginMobile && a.bankName===bankName);
-if(existing){ showMsg("You already added S.K Bank","error"); return; }
+  /* --- SAVE ACCOUNT --- */
+  const newAccount = {
+    mobileNumber: loginMobile,
+    bankName: bankName,
+    bankAccount: newAccountNumber,
+    atmLast6: atmLast6,
+    validThru: validThru,
+    pin: pin,
+    created: new Date().toLocaleString()
+  };
+  accounts.push(newAccount);
+  saveBankAccounts(accounts);
+  showMsg("Bank account added successfully","success");
 
-const newAccount = {
-mobileNumber: loginMobile,
-bankName: bankName,
-bankAccount: newAccountNumber,
-atmLast6: atmLast6,
-validThru: validThru,
-pin: pin,
-created: new Date().toLocaleString()
-};
-
-accounts.push(newAccount);
-saveBankAccounts(accounts);
-showMsg("Bank account added successfully","success");
-
-/* Reset form */
-document.getElementById("atmLast6").value="";
-document.getElementById("validThru").value="";
-document.getElementById("pin").value="";
-document.getElementById("rePin").value="";
+  /* --- RESET FORM --- */
+  document.getElementById("atmLast6").value="";
+  document.getElementById("validThru").value="";
+  document.getElementById("pin").value="";
+  document.getElementById("rePin").value="";
 }
 </script>
 

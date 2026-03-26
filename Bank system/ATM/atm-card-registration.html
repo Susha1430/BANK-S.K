@@ -1,453 +1,191 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>S.K Bank ATM Card Registration</title>
-  <style>
-    *{
-      margin:0;
-      padding:0;
-      box-sizing:border-box;
-      font-family:Arial,sans-serif;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ATM Card Registration</title>
 
-    body{
-      min-height:100vh;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-      padding:20px;
-      color:#fff;
-    }
+<style>
+body{
+  font-family:Arial;
+  background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  color:#fff;
+}
 
-    .container{
-      width:100%;
-      max-width:550px;
-      background:rgba(255,255,255,0.12);
-      backdrop-filter:blur(12px);
-      border-radius:24px;
-      padding:28px;
-      box-shadow:0 12px 35px rgba(0,0,0,0.35);
-      animation:fadeInUp .8s ease;
-    }
+.container{
+  width:350px;
+  padding:25px;
+  border-radius:20px;
+  background:rgba(255,255,255,0.1);
+  backdrop-filter:blur(12px);
+  box-shadow:0 10px 30px rgba(0,0,0,0.4);
+  animation:fadeUp 0.6s ease;
+}
 
-    @keyframes fadeInUp{
-      from{opacity:0;transform:translateY(24px);}
-      to{opacity:1;transform:translateY(0);}
-    }
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(30px);}
+  to{opacity:1;}
+}
 
-    h1{
-      text-align:center;
-      margin-bottom:8px;
-      font-size:30px;
-    }
+h2{
+  text-align:center;
+  margin-bottom:15px;
+}
 
-    .subtitle{
-      text-align:center;
-      color:#d8f3ff;
-      margin-bottom:20px;
-      font-size:14px;
-    }
+input,select,button{
+  width:100%;
+  padding:12px;
+  margin:10px 0;
+  border:none;
+  border-radius:10px;
+}
 
-    .charge-box{
-      margin-bottom:18px;
-      padding:14px;
-      border-radius:14px;
-      background:rgba(255,255,255,0.10);
-      text-align:center;
-      font-size:15px;
-      line-height:1.6;
-    }
+input,select{
+  background:#fff;
+  color:#000;
+}
 
-    .form-group{
-      margin-bottom:15px;
-    }
+button{
+  background:linear-gradient(90deg,#00c6ff,#0072ff);
+  color:#fff;
+  font-weight:bold;
+  cursor:pointer;
+  transition:0.3s;
+}
 
-    label{
-      display:block;
-      margin-bottom:6px;
-      font-size:14px;
-      font-weight:bold;
-      color:#eefaff;
-    }
+button:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 20px rgba(0,114,255,0.4);
+}
 
-    input{
-      width:100%;
-      padding:13px;
-      border:none;
-      outline:none;
-      border-radius:12px;
-      font-size:15px;
-      background:rgba(255,255,255,0.95);
-      color:#222;
-      transition:.3s ease;
-    }
+.msg{
+  text-align:center;
+  margin-top:10px;
+  font-size:14px;
+}
 
-    input:focus{
-      transform:scale(1.01);
-      box-shadow:0 0 0 3px rgba(0,198,255,0.25);
-    }
-
-    .readonly{
-      background:rgba(220,230,240,0.95);
-    }
-
-    .btn{
-      width:100%;
-      padding:14px;
-      border:none;
-      border-radius:12px;
-      background:linear-gradient(90deg,#00c6ff,#0072ff);
-      color:#fff;
-      font-size:16px;
-      font-weight:bold;
-      cursor:pointer;
-      transition:.3s ease;
-      margin-top:8px;
-    }
-
-    .btn:hover{
-      transform:translateY(-2px);
-      box-shadow:0 8px 18px rgba(0,114,255,0.35);
-    }
-
-    .message{
-      margin-top:16px;
-      padding:12px;
-      border-radius:12px;
-      text-align:center;
-      display:none;
-      font-size:14px;
-      animation:popIn .4s ease;
-    }
-
-    @keyframes popIn{
-      from{opacity:0;transform:scale(.92);}
-      to{opacity:1;transform:scale(1);}
-    }
-
-    .success{
-      display:block;
-      background:rgba(0,200,83,0.18);
-      color:#b9ffd0;
-      border:1px solid rgba(0,200,83,0.35);
-    }
-
-    .error{
-      display:block;
-      background:rgba(255,82,82,0.16);
-      color:#ffd1d1;
-      border:1px solid rgba(255,82,82,0.35);
-    }
-
-    .card-box{
-      margin-top:18px;
-      padding:18px;
-      border-radius:18px;
-      background:linear-gradient(135deg,#1f3c88,#39a0ed);
-      display:none;
-      animation:zoomIn .5s ease;
-      box-shadow:0 10px 25px rgba(0,0,0,0.30);
-    }
-
-    @keyframes zoomIn{
-      from{opacity:0;transform:scale(.92);}
-      to{opacity:1;transform:scale(1);}
-    }
-
-    .card-box h3{
-      margin-bottom:14px;
-      font-size:22px;
-    }
-
-    .card-box p{
-      margin:8px 0;
-      font-size:15px;
-      word-break:break-word;
-    }
-
-    .big-number{
-      font-size:22px;
-      letter-spacing:2px;
-      font-weight:bold;
-      margin:16px 0;
-      color:#fff;
-    }
-
-    .small-row{
-      display:flex;
-      justify-content:space-between;
-      gap:12px;
-      margin-top:10px;
-      flex-wrap:wrap;
-    }
-
-    .small-row div{
-      font-size:14px;
-      color:#eef7ff;
-    }
-  </style>
+.success{color:#00ffae;}
+.error{color:#ff6b6b;}
+</style>
 </head>
+
 <body>
 
-  <div class="container">
-    <h1>S.K Bank</h1>
-    <p class="subtitle">ATM Card Registration</p>
+<div class="container">
+  <h2>ATM Card Registration</h2>
 
-    <div class="charge-box">
-      ATM Card Registration Charge: <strong>₹250</strong><br>
-      Amount will be deducted from balance.<br>
-      Status will remain <strong>PENDING</strong> until admin approval.
-    </div>
+  <input type="text" id="accountNumber" placeholder="Enter Bank Account Number">
 
-    <form id="atmForm">
-      <div class="form-group">
-        <label for="accountNumber">S.K Bank Account Number</label>
-        <input type="text" id="accountNumber" placeholder="Enter account number" required />
-      </div>
+  <select id="cardType">
+    <option value="">Select Card Type</option>
+    <option value="normal">Normal Card (₹250)</option>
+    <option value="vip">VIP Card (₹2000)</option>
+  </select>
 
-      <div class="form-group">
-        <label for="customerNumber">Customer Number</label>
-        <input type="text" id="customerNumber" placeholder="Enter customer number" required />
-      </div>
+  <button onclick="applyATM()">Apply ATM Card</button>
 
-      <div class="form-group">
-        <label for="holderName">Account Holder Name</label>
-        <input type="text" id="holderName" class="readonly" placeholder="Auto detect account holder name" readonly />
-      </div>
+  <div id="msg" class="msg"></div>
+</div>
 
-      <button type="submit" class="btn">Submit ATM Registration</button>
-    </form>
+<script>
 
-    <div id="messageBox" class="message"></div>
-
-    <div id="cardBox" class="card-box">
-      <h3>S.K Bank ATM Card Request</h3>
-      <p><strong>Account Holder:</strong> <span id="showHolderName"></span></p>
-      <p><strong>Status:</strong> <span id="showStatus"></span></p>
-      <p class="big-number" id="showCardNumber">PENDING APPROVAL</p>
-      <div class="small-row">
-        <div><strong>Validity:</strong> <span id="showValidity">--/--</span></div>
-        <div><strong>Type:</strong> <span id="showType">Master Card</span></div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-
-const atmForm = document.getElementById("atmForm");
-const accountNumberInput = document.getElementById("accountNumber");
-const customerNumberInput = document.getElementById("customerNumber");
-const holderNameInput = document.getElementById("holderName");
-const messageBox = document.getElementById("messageBox");
-const cardBox = document.getElementById("cardBox");
-
-const showHolderName = document.getElementById("showHolderName");
-const showStatus = document.getElementById("showStatus");
-const showCardNumber = document.getElementById("showCardNumber");
-const showValidity = document.getElementById("showValidity");
-const showType = document.getElementById("showType");
-
-const ATM_CHARGE = 250;
-
-/* ---------- STORAGE ---------- */
-
+// USERS (existing)
 function getUsers(){
   return JSON.parse(localStorage.getItem("sk_bank_users")) || [];
 }
-
-function saveUsers(users){
-  localStorage.setItem("sk_bank_users",JSON.stringify(users));
+function saveUsers(data){
+  localStorage.setItem("sk_bank_users", JSON.stringify(data));
 }
 
-function getCards(){
-  return JSON.parse(localStorage.getItem("sk_bank_atm_cards")) || [];
+// ATM STORAGE
+function getATM(){
+  return JSON.parse(localStorage.getItem("sk_bank_atm")) || [];
+}
+function saveATM(data){
+  localStorage.setItem("sk_bank_atm", JSON.stringify(data));
 }
 
-function saveCards(cards){
-  localStorage.setItem("sk_bank_atm_cards",JSON.stringify(cards));
+// GENERATE ATM NUMBER
+function generateATM(){
+  let num="";
+  for(let i=0;i<16;i++){
+    num+=Math.floor(Math.random()*10);
+  }
+  return num;
 }
 
-function getTransactions(){
-  return JSON.parse(localStorage.getItem("sk_bank_transactions")) || [];
-}
+// APPLY ATM
+function applyATM(){
 
-function saveTransactions(data){
-  localStorage.setItem("sk_bank_transactions",JSON.stringify(data));
-}
+  let acc=document.getElementById("accountNumber").value.trim();
+  let type=document.getElementById("cardType").value;
+  let msg=document.getElementById("msg");
 
-/* ---------- TRANSACTION SAVE ---------- */
+  let users=getUsers();
+  let atm=getATM();
 
-function saveTransaction(accountNumber,type,amount){
+  let user=users.find(u=>u.accountNumber===acc);
 
-  let transactions = getTransactions();
+  if(!user){
+    msg.innerText="Account not found";
+    msg.className="msg error";
+    return;
+  }
 
-  const now = new Date();
+  // ONE TIME CHECK
+  let already=atm.find(a=>a.accountNumber===acc);
 
-  const date = now.toLocaleDateString();
-  const time = now.toLocaleTimeString();
+  if(already){
+    msg.innerText="ATM already registered (one time only)";
+    msg.className="msg error";
+    return;
+  }
 
-  const data = {
-    accountNumber:accountNumber,
+  let charge = type==="vip" ? 2000 : 250;
+
+  if(!type){
+    msg.innerText="Select card type";
+    msg.className="msg error";
+    return;
+  }
+
+  if(user.balance < charge){
+    msg.innerText="Insufficient balance";
+    msg.className="msg error";
+    return;
+  }
+
+  // DEDUCT BALANCE
+  user.balance -= charge;
+
+  // CREATE ATM
+  let atmData={
+    accountNumber:acc,
+    name:user.fullName,
+    atmNumber:generateATM(),
     type:type,
-    amount:amount,
-    date:date,
-    time:time
+    status:"pending",
+    pin:null
   };
 
-  transactions.push(data);
+  atm.push(atmData);
 
-  saveTransactions(transactions);
-}
-
-/* ---------- UI ---------- */
-
-function showMessage(text,type){
-  messageBox.style.display="block";
-  messageBox.className="message "+type;
-  messageBox.textContent=text;
-}
-
-function hideMessage(){
-  messageBox.style.display="none";
-}
-
-function hideCardBox(){
-  cardBox.style.display="none";
-}
-
-function showCardRequest(card){
-
-  showHolderName.textContent = card.holderName;
-  showStatus.textContent = card.status;
-
-  showCardNumber.textContent =
-  card.cardNumber ? card.cardNumber : "PENDING APPROVAL";
-
-  showValidity.textContent =
-  card.validity ? card.validity : "--/--";
-
-  showType.textContent = card.cardType;
-
-  cardBox.style.display="block";
-}
-
-/* ---------- FIND USER ---------- */
-
-function findUser(){
-
-  const acc = accountNumberInput.value.trim();
-  const cus = customerNumberInput.value.trim();
-
-  const users = getUsers();
-  const cards = getCards();
-
-  const user = users.find(
-  u => u.accountNumber === acc && u.customerNumber === cus
-  );
-
-  if(user){
-
-    holderNameInput.value = user.fullName;
-
-    const card = cards.find(
-    c => c.accountNumber === acc
-    );
-
-    if(card){
-      showCardRequest(card);
-    }else{
-      hideCardBox();
-    }
-
-  }else{
-    holderNameInput.value="";
-    hideCardBox();
-  }
-
-}
-
-accountNumberInput.addEventListener("input",findUser);
-customerNumberInput.addEventListener("input",findUser);
-
-/* ---------- SUBMIT ATM REQUEST ---------- */
-
-atmForm.addEventListener("submit",function(e){
-
-  e.preventDefault();
-
-  const acc = accountNumberInput.value.trim();
-  const cus = customerNumberInput.value.trim();
-
-  let users = getUsers();
-  let cards = getCards();
-
-  const index = users.findIndex(
-  u => u.accountNumber === acc && u.customerNumber === cus
-  );
-
-  if(index === -1){
-    showMessage("Invalid account details","error");
-    return;
-  }
-
-  const user = users[index];
-
-  const existing = cards.find(
-  c => c.accountNumber === acc
-  );
-
-  if(existing){
-    showMessage("ATM already requested","error");
-    showCardRequest(existing);
-    return;
-  }
-
-  if(user.balance < ATM_CHARGE){
-    showMessage("Insufficient balance ₹250 required","error");
-    return;
-  }
-
-  /* deduct balance */
-
-  user.balance = user.balance - ATM_CHARGE;
-  users[index] = user;
-
+  saveATM(atm);
   saveUsers(users);
 
-  /* SAVE TRANSACTION */
+  msg.innerText="ATM Card Applied Successfully (Pending Approval)";
+  msg.className="msg success";
 
-  saveTransaction(acc,"ATM Card Charge",-250);
-
-  /* create card request */
-
-  const request = {
-
-    accountNumber:acc,
-    customerNumber:cus,
-    holderName:user.fullName,
-    mobileNumber:user.mobileNumber,
-    status:"PENDING",
-    cardNumber:"",
-    validity:"",
-    cardType:"Master Card",
-    created:new Date().toLocaleString()
-
-  };
-
-  cards.push(request);
-  saveCards(cards);
-
-  showMessage("ATM request submitted ₹250 deducted","success");
-
-  showCardRequest(request);
-
-  atmForm.reset();
-  holderNameInput.value="";
-
-});
+  // animation reset
+  document.querySelector(".container").style.transform="scale(0.97)";
+  setTimeout(()=>{
+    document.querySelector(".container").style.transform="scale(1)";
+  },150);
+}
 
 </script>
 

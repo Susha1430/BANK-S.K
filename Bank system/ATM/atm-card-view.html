@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Ultra ATM Card</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<style>
+body{
+  font-family:Arial;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+}
+
+.box{
+  background:#fff;
+  padding:20px;
+  border-radius:15px;
+  width:360px;
+  text-align:center;
+}
+
+/* CARD */
+.card{
+  width:100%;
+  height:220px;
+  border-radius:18px;
+  padding:20px;
+  color:#fff;
+  position:relative;
+  background:linear-gradient(135deg,#141e30,#243b55);
+  box-shadow:0 15px 30px rgba(0,0,0,0.4);
+  display:none;
+  animation:fade 0.6s ease;
+}
+
+@keyframes fade{
+  from{opacity:0;transform:scale(0.9);}
+  to{opacity:1;}
+}
+
+/* CHIP */
+.chip{
+  width:50px;
+  height:35px;
+  background:linear-gradient(135deg,#d4af37,#f6e27a,#c5a028);
+  border-radius:6px;
+}
+
+/* NFC ICON */
+.nfc{
+  position:absolute;
+  right:20px;
+  top:20px;
+  font-size:22px;
+  animation:pulse 1.5s infinite;
+}
+
+@keyframes pulse{
+  0%{opacity:0.4;}
+  50%{opacity:1;}
+  100%{opacity:0.4;}
+}
+
+/* CARD TEXT */
+.num{
+  position:absolute;
+  bottom:80px;
+  font-size:18px;
+  letter-spacing:2px;
+}
+
+.name{
+  position:absolute;
+  bottom:35px;
+  font-size:14px;
+}
+
+.valid{
+  position:absolute;
+  right:20px;
+  bottom:35px;
+  font-size:12px;
+}
+
+/* LOGO */
+.logo{
+  position:absolute;
+  right:20px;
+  bottom:15px;
+  font-size:20px;
+  font-weight:bold;
+}
+
+/* BUTTON */
+button{
+  margin-top:10px;
+  padding:10px;
+  width:100%;
+  border:none;
+  border-radius:8px;
+  background:#00c6ff;
+  color:#fff;
+  font-weight:bold;
+  cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+
+<h3>ATM Card Ultra</h3>
+
+<input id="cardInput" placeholder="Card Number"><br><br>
+<button onclick="loadCard()">Load Card</button>
+
+<p id="msg"></p>
+
+<div id="cardUI" class="card">
+
+  <div class="chip"></div>
+  <div class="nfc">)))</div>
+
+  <div id="num" class="num"></div>
+  <div id="name" class="name"></div>
+  <div id="valid" class="valid"></div>
+
+  <div id="logo" class="logo"></div>
+
+</div>
+
+<button onclick="saveImage()">Save as Image</button>
+
+</div>
+
+<script>
+
+function getATM(){
+  return JSON.parse(localStorage.getItem("sk_atm_cards")) || [];
+}
+
+/* MASK CARD NUMBER */
+function maskNumber(num){
+  return "**** **** **** " + num.slice(-4);
+}
+
+/* LOAD CARD */
+function loadCard(){
+
+  let input=document.getElementById("cardInput").value;
+  let cards=getATM();
+
+  let c=cards.find(x=>x.cardNumber===input && x.status==="Approved");
+
+  if(!c){
+    msg.innerText="❌ Card not found";
+    return;
+  }
+
+  document.getElementById("num").innerText=maskNumber(c.cardNumber);
+  document.getElementById("name").innerText=c.holderName;
+  document.getElementById("valid").innerText=c.validThru;
+
+  // LOGO
+  let logo=document.getElementById("logo");
+  if(c.type==="VIP") logo.innerText="VISA";
+  else if(c.type==="MASTER") logo.innerText="MASTERCARD";
+  else logo.innerText="ATM";
+
+  cardUI.style.display="block";
+  msg.innerText="✅ Card Loaded";
+}
+
+/* SAVE IMAGE */
+function saveImage(){
+
+  html2canvas(document.getElementById("cardUI")).then(canvas=>{
+    let link=document.createElement("a");
+    link.download="atm-card.png";
+    link.href=canvas.toDataURL();
+    link.click();
+  });
+
+}
+
+</script>
+
+</body>
+</html>

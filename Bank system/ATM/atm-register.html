@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ATM Registration</title>
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:Arial;
+}
+
+/* 🎨 BACKGROUND */
+body{
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:linear-gradient(135deg,#1d2671,#c33764);
+}
+
+/* 🎨 GLASS CONTAINER */
+.container{
+  width:350px;
+  padding:25px;
+  border-radius:20px;
+  background:rgba(255,255,255,0.12);
+  backdrop-filter:blur(15px);
+  color:#fff;
+  box-shadow:0 15px 40px rgba(0,0,0,0.35);
+  animation:fadeIn 0.8s ease;
+}
+
+/* ✨ FADE ANIMATION */
+@keyframes fadeIn{
+  from{
+    opacity:0;
+    transform:translateY(30px);
+  }
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+
+h2{
+  text-align:center;
+  margin-bottom:15px;
+}
+
+/* 🎯 INPUT */
+input, select{
+  width:100%;
+  padding:13px;
+  margin:10px 0;
+  border:none;
+  border-radius:12px;
+  font-size:14px;
+  outline:none;
+  transition:0.3s;
+}
+
+/* 🎯 FOCUS EFFECT */
+input:focus, select:focus{
+  transform:scale(1.03);
+  box-shadow:0 0 0 3px rgba(0,198,255,0.35);
+}
+
+/* 🚀 BUTTON */
+button{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:12px;
+  background:linear-gradient(90deg,#00c6ff,#0072ff);
+  color:#fff;
+  font-size:15px;
+  font-weight:bold;
+  cursor:pointer;
+  transition:0.3s;
+}
+
+/* 🚀 HOVER EFFECT */
+button:hover{
+  transform:translateY(-3px);
+  box-shadow:0 10px 25px rgba(0,114,255,0.4);
+}
+
+/* ✅ MESSAGE BOX */
+#msg{
+  margin-top:14px;
+  padding:12px;
+  border-radius:12px;
+  text-align:center;
+  display:none;
+  font-size:14px;
+  animation:popIn 0.4s ease;
+}
+
+/* ✨ POP ANIMATION */
+@keyframes popIn{
+  from{
+    opacity:0;
+    transform:scale(0.9);
+  }
+  to{
+    opacity:1;
+    transform:scale(1);
+  }
+}
+
+/* SUCCESS */
+.success{
+  background:rgba(0,200,83,0.2);
+  color:#b9ffd0;
+  border:1px solid rgba(0,200,83,0.4);
+}
+
+/* ERROR */
+.error{
+  background:rgba(255,82,82,0.2);
+  color:#ffd1d1;
+  border:1px solid rgba(255,82,82,0.4);
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>ATM Registration</h2>
+
+<input id="acc" placeholder="Account Number">
+<input id="cust" placeholder="Customer Number">
+
+<select id="type">
+<option value="">Select Card</option>
+<option value="VIP">VIP Card</option>
+<option value="MASTER">Master Card</option>
+<option value="NORMAL">Normal Card</option>
+</select>
+
+<button onclick="registerATM()">Register ATM</button>
+
+<p id="msg"></p>
+
+</div>
+
+<script>
+
+/* STORAGE */
+function getUsers(){
+  return JSON.parse(localStorage.getItem("sk_bank_users")) || [];
+}
+
+function getATM(){
+  return JSON.parse(localStorage.getItem("sk_atm_cards")) || [];
+}
+
+function saveATM(data){
+  localStorage.setItem("sk_atm_cards", JSON.stringify(data));
+}
+
+/* GENERATORS */
+function generateCardNumber(){
+  let n="";
+  for(let i=0;i<16;i++) n+=Math.floor(Math.random()*10);
+  return n;
+}
+
+function generateValid(){
+  let y=new Date().getFullYear()+5;
+  let m=Math.floor(Math.random()*12)+1;
+  return m+"/"+y;
+}
+
+/* MESSAGE FUNCTION */
+function showMsg(text,type){
+  let m=document.getElementById("msg");
+  m.style.display="block";
+  m.className=type;
+  m.innerText=text;
+}
+
+/* MAIN FUNCTION */
+function registerATM(){
+
+  let acc=document.getElementById("acc").value.trim();
+  let cust=document.getElementById("cust").value.trim();
+  let type=document.getElementById("type").value;
+
+  let users=getUsers();
+  let cards=getATM();
+
+  let user=users.find(u=>u.accountNumber===acc && u.customerNumber===cust);
+
+  if(!user){
+    showMsg("❌ Invalid account details","error");
+    return;
+  }
+
+  if(cards.some(c=>c.accountNumber===acc)){
+    showMsg("⚠ ATM already exists","error");
+    return;
+  }
+
+  if(!type){
+    showMsg("⚠ Please select card type","error");
+    return;
+  }
+
+  let cardNumber=generateCardNumber();
+  let validThru=generateValid();
+
+  cards.push({
+    accountNumber:acc,
+    customerNumber:cust,
+    holderName:user.fullName || user.name,
+    cardNumber:cardNumber,
+    validThru:validThru,
+    type:type,
+    status:"Pending"
+  });
+
+  saveATM(cards);
+
+  showMsg("✅ ATM Registered Successfully (Pending Approval)","success");
+
+  // reset form
+  document.getElementById("acc").value="";
+  document.getElementById("cust").value="";
+  document.getElementById("type").value="";
+}
+
+</script>
+
+</body>
+</html>

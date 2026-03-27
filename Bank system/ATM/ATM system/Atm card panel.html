@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+  
+  <h2>Admin Panel</h2>
+  
+  <div id="list"></div>
+  
+  <script>
+    function getATM() {
+      return JSON.parse(localStorage.getItem("sk_atm_cards")) || [];
+    }
+    
+    function saveATM(data) {
+      localStorage.setItem("sk_atm_cards", JSON.stringify(data));
+    }
+    
+    function load() {
+      
+      let cards = getATM();
+      let html = "";
+      
+      cards.forEach((c, i) => {
+        
+        html += `
+    <div>
+      ${c.cardNumber} - ${c.status}
+      <br>
+      <button onclick="approve(${i})">Approve</button>
+      <button onclick="reject(${i})">Reject</button>
+    </div><hr>
+    `;
+      });
+      
+      document.getElementById("list").innerHTML = html;
+    }
+    
+    function approve(i) {
+      let c = getATM();
+      c[i].status = "Approved"; // ✅ IMPORTANT
+      saveATM(c);
+      load();
+    }
+    
+    function reject(i) {
+      let c = getATM();
+      c[i].status = "Rejected";
+      saveATM(c);
+      load();
+    }
+    
+    load();
+  </script>
+  
+</body>
+
+</html>

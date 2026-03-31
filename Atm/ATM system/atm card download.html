@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ATM Card Download</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+body{
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:linear-gradient(135deg,#141e30,#243b55);
+  font-family:Arial;
+  color:#fff;
+}
+
+/* container */
+.container{
+  max-width:400px;
+  width:100%;
+  padding:25px;
+  border-radius:15px;
+  background:rgba(255,255,255,0.1);
+  text-align:center;
+}
+
+/* input */
+input{
+  width:100%;
+  padding:12px;
+  margin:10px 0;
+  border:none;
+  border-radius:10px;
+}
+
+/* button */
+button{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:10px;
+  background:linear-gradient(90deg,#00c6ff,#0072ff);
+  color:#fff;
+  cursor:pointer;
+}
+
+/* loader */
+.loader{
+  display:none;
+  margin-top:10px;
+}
+
+.bar{
+  height:8px;
+  width:0;
+  background:linear-gradient(90deg,#ffd700,#00c6ff);
+  animation:load 2s forwards;
+}
+
+@keyframes load{
+  from{width:0}
+  to{width:100%}
+}
+
+/* ATM CARD */
+.card{
+  display:none;
+  margin-top:20px;
+  width:320px;
+  height:190px;
+  border-radius:15px;
+  padding:20px;
+  background:linear-gradient(135deg,#000428,#004e92);
+  position:relative;
+}
+
+.bank{
+  font-size:18px;
+  font-weight:bold;
+}
+
+.number{
+  margin-top:25px;
+  font-size:20px;
+  letter-spacing:2px;
+}
+
+.name{
+  position:absolute;
+  bottom:20px;
+  left:20px;
+}
+
+.exp{
+  position:absolute;
+  bottom:20px;
+  right:20px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>💳 ATM Card Download</h2>
+
+<input id="cardInput" placeholder="Enter ATM Card Number">
+<button onclick="downloadCard()">Download ATM Card PDF</button>
+
+<div class="loader" id="loader">
+  <div class="bar"></div>
+  <p>Loading Card...</p>
+</div>
+
+<p id="msg"></p>
+
+<!-- CARD DESIGN -->
+<div class="card" id="card">
+  <div class="bank">S.K BANK</div>
+  <div class="number" id="cnum"></div>
+  <div class="name" id="cname"></div>
+  <div class="exp" id="cexp"></div>
+</div>
+
+</div>
+
+<!-- SOUND -->
+<audio id="sound">
+<source src="sound/sub.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+
+const { jsPDF } = window.jspdf;
+
+function playSound(){
+  let s=document.getElementById("sound");
+  s.currentTime=0;
+  s.play().catch(()=>{});
+}
+
+function getUsers(){
+  return JSON.parse(localStorage.getItem("sk_bank_users"))||[];
+}
+
+function msg(t){
+  document.getElementById("msg").innerText=t;
+}
+
+function downloadCard(){
+
+  playSound();
+
+  let num=document.getElementById("cardInput").value.trim();
+  let users=getUsers();
+
+  let user=users.find(u=>u.cardNumber===num);
+
+  if(!user) return msg("❌ Card not found");
+
+  document.getElementById("loader").style.display="block";
+
+  setTimeout(async ()=>{
+
+    // fill card
+    document.getElementById("card").style.display="block";
+    document.getElementById("cnum").innerText=user.cardNumber;
+    document.getElementById("cname").innerText=user.name || "ACCOUNT HOLDER";
+    document.getElementById("cexp").innerText="EXP: "+user.expiry;
+
+    // convert to image
+    const canvas = await html2canvas(document.getElementById("card"));
+    const imgData = canvas.toDataURL("image/png");
+
+    const pdf = new jsPDF();
+    pdf.addImage(imgData,'PNG',10,20,180,100);
+
+    pdf.save("ATM_Card.pdf");
+
+    msg("✅ ATM Card Downloaded");
+
+  },2000);
+}
+
+</script>
+
+</body>
+</html>

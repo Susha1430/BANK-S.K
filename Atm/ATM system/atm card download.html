@@ -68,7 +68,7 @@ button:hover{
   to{width:100%}
 }
 
-/* ATM CARD FRONT */
+/* ATM FRONT */
 .card{
   width:320px;
   height:190px;
@@ -80,7 +80,7 @@ button:hover{
   visibility:hidden;
 }
 
-/* ATM CARD BACK */
+/* ATM BACK */
 .card-back{
   width:320px;
   height:190px;
@@ -137,11 +137,11 @@ button:hover{
 <h2>💳 ATM Card Download</h2>
 
 <input id="cardInput" placeholder="Enter ATM Number">
-<button onclick="downloadCard()">Download PDF</button>
+<button onclick="downloadCard()">Download ATM PDF</button>
 
 <div class="loader" id="loader">
   <div class="bar"></div>
-  <p>Loading...</p>
+  <p>Processing...</p>
 </div>
 
 <p id="msg"></p>
@@ -161,9 +161,9 @@ button:hover{
   <div class="bank">S.K BANK</div>
 
   <div class="back-info">
-    <p>👤 Name: <span id="b_name"></span></p>
+    <p>👤 Holder: <span id="b_name"></span></p>
     <p>🏦 Bank: S.K BANK</p>
-    <p>📅 Exp: <span id="b_exp"></span></p>
+    <p>📅 Expiry: <span id="b_exp"></span></p>
   </div>
 </div>
 
@@ -173,6 +173,7 @@ button:hover{
 
 const { jsPDF } = window.jspdf;
 
+/* get data */
 function getUsers(){
   return JSON.parse(localStorage.getItem("sk_bank_users")) || [];
 }
@@ -181,20 +182,31 @@ function msg(t){
   document.getElementById("msg").innerText = t;
 }
 
+/* MAIN FUNCTION */
 async function downloadCard(){
 
   let num = document.getElementById("cardInput").value.trim();
+
+  if(!num){
+    return msg("❌ Enter ATM number");
+  }
+
   let users = getUsers();
 
-  let user = users.find(u => u.accountNumber === num);
+  /* ✅ FIXED SEARCH (ALL POSSIBLE KEYS) */
+  let user = users.find(u =>
+    String(u.accountNumber).trim() === num ||
+    String(u.cardNumber).trim() === num ||
+    String(u.customerNumber).trim() === num
+  );
 
   if(!user){
-    return msg("❌ ATM Number not found");
+    return msg("❌ ATM number not found");
   }
 
   document.getElementById("loader").style.display="block";
 
-  /* SHOW CARDS */
+  /* SHOW CARD */
   document.getElementById("cardFront").style.visibility="visible";
   document.getElementById("cardBack").style.visibility="visible";
 
@@ -212,24 +224,16 @@ async function downloadCard(){
   const pdf = new jsPDF();
 
   /* FRONT */
-  const frontCanvas = await html2canvas(document.getElementById("cardFront"), {
-    scale: 2
-  });
+  const frontCanvas = await html2canvas(document.getElementById("cardFront"), { scale: 2 });
 
-  const frontImg = frontCanvas.toDataURL("image/png");
-
-  pdf.addImage(frontImg, "PNG", 10, 20, 180, 100);
+  pdf.addImage(frontCanvas.toDataURL("image/png"), "PNG", 10, 20, 180, 100);
 
   pdf.addPage();
 
   /* BACK */
-  const backCanvas = await html2canvas(document.getElementById("cardBack"), {
-    scale: 2
-  });
+  const backCanvas = await html2canvas(document.getElementById("cardBack"), { scale: 2 });
 
-  const backImg = backCanvas.toDataURL("image/png");
-
-  pdf.addImage(backImg, "PNG", 10, 20, 180, 100);
+  pdf.addImage(backCanvas.toDataURL("image/png"), "PNG", 10, 20, 180, 100);
 
   pdf.save("ATM_CARD.pdf");
 

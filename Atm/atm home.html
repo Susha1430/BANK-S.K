@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>ATM Dashboard</title>
+
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+  color:#fff;
+  text-align:center;
+}
+
+.box{
+  max-width:400px;
+  margin:30px auto;
+  padding:20px;
+  border-radius:20px;
+  background:rgba(255,255,255,0.08);
+  backdrop-filter:blur(10px);
+  animation:fade 0.6s ease;
+}
+
+@keyframes fade{
+  from{opacity:0; transform:translateY(20px);}
+  to{opacity:1; transform:translateY(0);}
+}
+
+.info p{
+  margin:8px 0;
+}
+
+input{
+  width:100%;
+  padding:10px;
+  margin:8px 0;
+  border:none;
+  border-radius:10px;
+}
+
+button{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:12px;
+  background:linear-gradient(90deg,#00c6ff,#0072ff);
+  color:#fff;
+  cursor:pointer;
+  transition:0.3s;
+}
+
+button:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 18px rgba(0,114,255,0.4);
+}
+
+button:active{
+  transform:scale(0.97);
+}
+
+.loading{
+  pointer-events:none;
+  opacity:0.7;
+}
+
+.logout{
+  background:linear-gradient(90deg,#ff512f,#dd2476);
+}
+
+.section{
+  margin-top:20px;
+}
+
+.msg{
+  margin-top:10px;
+  color:#00ffcc;
+}
+
+.loader{
+  display:none;
+  margin-top:15px;
+}
+
+.loader div{
+  width:10px;
+  height:10px;
+  margin:3px;
+  background:#00c6ff;
+  display:inline-block;
+  border-radius:50%;
+  animation:blink 1s infinite;
+}
+
+.loader div:nth-child(2){animation-delay:0.2s;}
+.loader div:nth-child(3){animation-delay:0.4s;}
+
+@keyframes blink{
+  0%,100%{opacity:0.3;}
+  50%{opacity:1;}
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="box">
+
+<h2>🏦 ATM Dashboard</h2>
+
+<div class="info">
+  <p><b>Name:</b> <span id="name"></span></p>
+  <p><b>Account No:</b> <span id="acc"></span></p>
+  <p><b>Card No:</b> <span id="card"></span></p>
+  <p><b>Balance:</b> ₹<span id="bal"></span></p>
+</div>
+
+<div class="section">
+  <button onclick="handleAction(this, openCard)">💳 View ATM Card</button>
+</div>
+
+<div class="section">
+  <h3>🔐 Set ATM PIN</h3>
+  <input type="password" id="pin" placeholder="Enter 4-digit PIN">
+  <button onclick="handleAction(this, setPin)">Set PIN</button>
+</div>
+
+<div class="section">
+  <h3>💳 Card Verification</h3>
+  <input id="last6" placeholder="Enter last 6 digits">
+  <input id="exp" placeholder="Expiry (MM/YY)">
+  <button onclick="handleAction(this, verifyCard)">Verify Card</button>
+</div>
+
+<div class="section">
+  <h3>📱 UPI Activity</h3>
+  <input id="upi" placeholder="Enter UPI ID">
+  <button onclick="handleAction(this, saveUPI)">Link UPI</button>
+</div>
+
+<div class="section">
+  <button class="logout" onclick="handleAction(this, logout)">🚪 Logout</button>
+</div>
+
+<div class="loader" id="loader">
+  <div></div><div></div><div></div>
+</div>
+
+<div class="msg" id="msg"></div>
+
+</div>
+
+<script>
+
+/* USER LOAD */
+let user = JSON.parse(localStorage.getItem("currentUser"));
+
+if(!user){
+  alert("Login first");
+  window.location.href="login.html";
+}
+
+if(!user.vipCard){
+  alert("No ATM card");
+  window.location.href="login.html";
+}
+
+/* FIXED NAME DISPLAY */
+document.getElementById("name").innerText =
+  user.fullName || user.name || "Unknown User";
+
+document.getElementById("acc").innerText = user.accountNumber || "N/A";
+document.getElementById("card").innerText = user.cardNumber || "N/A";
+document.getElementById("bal").innerText = user.balance || 0;
+
+/* BUTTON HANDLER */
+function handleAction(btn, action){
+  btn.classList.add("loading");
+  document.getElementById("loader").style.display="block";
+
+  setTimeout(()=>{
+    action();
+    btn.classList.remove("loading");
+    document.getElementById("loader").style.display="none";
+  },1000);
+}
+
+/* OPEN CARD */
+function openCard(){
+  if(user.vipPending) return showMsg("⏳ Pending approval");
+  window.location.href="ATM system/atm.html";
+}
+
+/* SET PIN */
+function setPin(){
+  let pin = document.getElementById("pin").value.trim();
+
+  if(!/^[0-9]{4}$/.test(pin)){
+    return showMsg("❌ Invalid PIN");
+  }
+
+  user.pin = pin;
+  updateUser();
+  showMsg("✅ PIN set successfully");
+}
+
+/* VERIFY CARD */
+function verifyCard(){
+  let last6 = document.getElementById("last6").value.trim();
+  let exp = document.getElementById("exp").value.trim();
+
+  let real = user.cardNumber.replace(/\s/g,'').slice(-6);
+
+  if(last6!==real) return showMsg("❌ Wrong digits");
+  if(exp!==user.expiry) return showMsg("❌ Wrong expiry");
+
+  showMsg("✅ Card verified");
+}
+
+/* UPI */
+function saveUPI(){
+  let upi = document.getElementById("upi").value.trim();
+
+  if(!upi.includes("@")) return showMsg("❌ Invalid UPI");
+
+  user.upi = upi;
+  updateUser();
+  showMsg("✅ UPI linked");
+}
+
+/* LOGOUT */
+function logout(){
+  localStorage.removeItem("currentUser");
+  window.location.href="login.html";
+}
+
+/* SAVE USER */
+function updateUser(){
+  let users = JSON.parse(localStorage.getItem("sk_bank_users")) || [];
+  let i = users.findIndex(u=>u.accountNumber===user.accountNumber);
+
+  if(i !== -1){
+    users[i] = user;
+    localStorage.setItem("sk_bank_users", JSON.stringify(users));
+  }
+
+  localStorage.setItem("currentUser", JSON.stringify(user));
+}
+
+/* MESSAGE */
+function showMsg(t){
+  document.getElementById("msg").innerText = t;
+}
+
+</script>
+
+</body>
+</html>

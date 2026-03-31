@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>VIP ATM Card Apply</title>
+
+<style>
+body{
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:linear-gradient(135deg,#141e30,#243b55);
+  font-family:Arial;
+  color:#fff;
+}
+.container{
+  max-width:400px;
+  width:100%;
+  padding:25px;
+  border-radius:15px;
+  background:rgba(255,255,255,0.1);
+}
+input,button{
+  width:100%;
+  padding:12px;
+  margin:10px 0;
+  border:none;
+  border-radius:10px;
+}
+button{
+  background:#ff512f;
+  color:#fff;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+<h2>💳 VIP ATM Card</h2>
+<p>Charge ₹5000</p>
+
+<input id="acc" placeholder="Account Number">
+<button onclick="apply()">Apply Card</button>
+
+<p id="msg"></p>
+</div>
+
+<script>
+
+function getUsers(){
+  return JSON.parse(localStorage.getItem("sk_bank_users"))||[];
+}
+
+function saveUsers(u){
+  localStorage.setItem("sk_bank_users",JSON.stringify(u));
+}
+
+function genCard(){
+  let n="";
+  for(let i=0;i<16;i++) n+=Math.floor(Math.random()*10);
+  return n.match(/.{1,4}/g).join(" ");
+}
+
+function genCVV(){
+  return Math.floor(100+Math.random()*900);
+}
+
+function genExp(){
+  let y=new Date().getFullYear()+5;
+  return "12/"+y.toString().slice(2);
+}
+
+function msg(t){
+  document.getElementById("msg").innerText=t;
+}
+
+function apply(){
+
+  let acc=document.getElementById("acc").value.trim();
+  let users=getUsers();
+  let user=users.find(u=>u.accountNumber===acc);
+
+  if(!user) return msg("❌ Account not found");
+  if(user.balance<5000) return msg("❌ Need ₹5000");
+  if(user.vipCard) return msg("⚠ Card already active");
+  if(user.vipPending) return msg("⏳ Already pending");
+
+  user.balance-=5000;
+
+  user.vipPending=true; // ⏳ pending
+  user.cardNumber=genCard();
+  user.cvv=genCVV();
+  user.expiry=genExp();
+
+  saveUsers(users);
+
+  msg("✅ Applied! Waiting for approval ⏳");
+}
+
+</script>
+
+</body>
+</html>

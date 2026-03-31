@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>S.K Bank Login</title>
+
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+  color:#fff;
+}
+
+/* LOGIN BOX */
+.box{
+  width:100%;
+  max-width:330px;
+  padding:25px;
+  border-radius:20px;
+  background:rgba(255,255,255,0.08);
+  backdrop-filter:blur(15px);
+  text-align:center;
+}
+
+/* INPUT */
+input{
+  width:100%;
+  padding:12px;
+  margin:8px 0;
+  border:none;
+  border-radius:10px;
+}
+
+/* BUTTON */
+button{
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  border:none;
+  border-radius:10px;
+  background:linear-gradient(90deg,#00c6ff,#0072ff);
+  color:#fff;
+  cursor:pointer;
+  transition:0.3s;
+}
+
+button:hover{
+  transform:translateY(-2px);
+}
+
+/* LINK */
+.link{
+  color:#00c6ff;
+  cursor:pointer;
+  font-size:14px;
+}
+
+/* LOADER */
+.loader{
+  display:none;
+  margin-top:10px;
+}
+.loader div{
+  width:10px;
+  height:10px;
+  margin:3px;
+  background:#00c6ff;
+  display:inline-block;
+  border-radius:50%;
+  animation:blink 1s infinite;
+}
+.loader div:nth-child(2){animation-delay:0.2s;}
+.loader div:nth-child(3){animation-delay:0.4s;}
+
+@keyframes blink{
+  0%,100%{opacity:0.3;}
+  50%{opacity:1;}
+}
+
+/* 🔐 FORGOT PANEL */
+.forgot-panel{
+  position:fixed;
+  bottom:-100%;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.85);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  transition:0.5s;
+}
+
+.forgot-panel.active{
+  bottom:0;
+}
+
+.forgot-box{
+  width:90%;
+  max-width:320px;
+  padding:20px;
+  border-radius:15px;
+  background:#111;
+  text-align:center;
+  animation:fadeUp 0.5s;
+}
+
+@keyframes fadeUp{
+  from{transform:translateY(30px); opacity:0;}
+  to{transform:translateY(0); opacity:1;}
+}
+
+.close{
+  float:right;
+  cursor:pointer;
+  color:#ff4d4d;
+  font-size:18px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- LOGIN -->
+<div class="box">
+
+<h2>🔐 Login</h2>
+
+<input id="acc" placeholder="Account Number">
+<input id="pass" type="password" placeholder="Password">
+
+<button onclick="login()">Login</button>
+
+<div class="loader" id="loader">
+<div></div><div></div><div></div>
+</div>
+
+<p class="link" onclick="openForgot()">Forgot Password?</p>
+
+</div>
+
+<!-- 🔐 FORGOT PASSWORD PANEL -->
+<div class="forgot-panel" id="forgotPanel">
+  <div class="forgot-box">
+
+    <span class="close" onclick="closeForgot()">✖</span>
+
+    <h3>Reset Password</h3>
+
+    <input id="fAcc" placeholder="Account Number">
+    <input id="fMobile" placeholder="Mobile Number">
+    <input id="newPass" placeholder="New Password">
+
+    <button onclick="resetPassword()">Update Password</button>
+
+    <div class="loader" id="resetLoader">
+      <div></div><div></div><div></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+
+/* SOUND */
+function clickSound(){
+  let audio=new Audio("https://www.soundjay.com/buttons/button-16.mp3");
+  audio.play();
+}
+
+function getUsers(){
+  return JSON.parse(localStorage.getItem("sk_bank_users"))||[];
+}
+
+/* LOGIN */
+function login(){
+  clickSound();
+  let acc=accInput().value.trim();
+  let pass=passInput().value.trim();
+
+  let loader=document.getElementById("loader");
+  loader.style.display="block";
+
+  setTimeout(()=>{
+    let user=getUsers().find(u=>u.accountNumber===acc && u.password===pass);
+    loader.style.display="none";
+
+    if(user){
+      localStorage.setItem("currentUser",JSON.stringify(user));
+      alert("Login Successful ✅");
+      window.location.href="atm home.html";
+    }else{
+      alert("Invalid login ❌");
+    }
+  },1200);
+}
+
+function accInput(){return document.getElementById("acc");}
+function passInput(){return document.getElementById("pass");}
+
+/* OPEN FORGOT PANEL */
+function openForgot(){
+  clickSound();
+  document.getElementById("forgotPanel").classList.add("active");
+}
+
+/* CLOSE PANEL */
+function closeForgot(){
+  document.getElementById("forgotPanel").classList.remove("active");
+}
+
+/* RESET PASSWORD */
+function resetPassword(){
+  clickSound();
+
+  let loader=document.getElementById("resetLoader");
+  loader.style.display="block";
+
+  setTimeout(()=>{
+
+    let acc=document.getElementById("fAcc").value.trim();
+    let mobile=document.getElementById("fMobile").value.trim();
+    let newPass=document.getElementById("newPass").value.trim();
+
+    let users=getUsers();
+    let user=users.find(u=>u.accountNumber===acc && u.mobile===mobile);
+
+    loader.style.display="none";
+
+    if(!user){
+      alert("Invalid details ❌");
+      return;
+    }
+
+    user.password=newPass;
+    localStorage.setItem("sk_bank_users",JSON.stringify(users));
+
+    alert("Password updated ✅");
+    closeForgot();
+
+  },1200);
+}
+
+</script>
+
+</body>
+</html>

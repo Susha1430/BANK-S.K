@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>S.K Bank Entry</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+color:white;
+overflow:hidden;
+}
+
+/* container */
+.container{
+text-align:center;
+}
+
+/* title */
+.title{
+font-size:50px;
+color:#ffd700;
+text-shadow:0 0 10px #ffd700,0 0 20px #ffae00;
+margin-bottom:10px;
+animation:glow 2s infinite alternate;
+}
+
+/* subtitle */
+.subtitle{
+margin-bottom:30px;
+font-size:18px;
+}
+
+/* buttons */
+.btn{
+display:block;
+width:240px;
+margin:10px auto;
+padding:14px;
+border:none;
+border-radius:12px;
+background:linear-gradient(90deg,#00c6ff,#0072ff);
+color:white;
+font-size:16px;
+cursor:pointer;
+transition:0.3s;
+}
+
+.btn:hover{
+transform:translateY(-2px);
+box-shadow:0 0 15px #00c6ff;
+}
+
+/* loader */
+.loader{
+margin-top:25px;
+display:none;
+}
+
+.loadingBox{
+width:260px;
+height:8px;
+background:rgba(255,255,255,0.2);
+border-radius:10px;
+margin:auto;
+overflow:hidden;
+}
+
+.bar{
+width:0;
+height:8px;
+background:linear-gradient(90deg,#ffd700,#00c6ff);
+border-radius:10px;
+animation:load 2.5s forwards;
+}
+
+.loadingText{
+margin-top:10px;
+font-size:14px;
+}
+
+/* animations */
+@keyframes load{
+from{width:0}
+to{width:100%}
+}
+
+@keyframes glow{
+from{ text-shadow:0 0 10px #ffd700; }
+to{ text-shadow:0 0 30px #ff9800; }
+}
+
+/* active click */
+.btn:active{
+transform:scale(0.96);
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="title">S.K BANK</div>
+<div class="subtitle">Your Trust, Our Priority</div>
+
+<!-- BUTTONS -->
+<button class="btn" onclick="start('login')">🔐 Login</button>
+<button class="btn" onclick="start('apply')">💳 ATM Card Registration</button>
+
+<!-- LOADER -->
+<div class="loader" id="loader">
+  <div class="loadingBox">
+    <div class="bar"></div>
+  </div>
+  <div class="loadingText" id="loadingText">
+    Starting Secure Banking System...
+  </div>
+</div>
+
+</div>
+
+<!-- SOUND -->
+<audio id="introSound">
+<source src="sound/sub.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+
+function start(type){
+
+  document.getElementById("introSound").play();
+  document.getElementById("loader").style.display="block";
+  document.querySelectorAll(".btn").forEach(b=>b.style.display="none");
+
+  let text = document.getElementById("loadingText");
+
+  if(type==="login"){
+    text.innerText = "Opening Secure Login...";
+  }
+  else if(type==="apply"){
+    text.innerText = "Opening ATM Card Registration...";
+  }
+
+  setTimeout(()=>{
+
+    if(type==="login"){
+      window.location.href="login.html";
+    }
+    else if(type==="apply"){
+      window.location.href="registration atm.html";
+    }
+
+  },2500);
+}
+
+</script>
+
+</body>
+</html>

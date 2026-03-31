@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Admin Panel</title>
+
+<style>
+body{
+  font-family:Arial;
+  background:#111;
+  color:#fff;
+  text-align:center;
+}
+button{
+  padding:8px;
+  margin:5px;
+  border:none;
+  border-radius:8px;
+  background:#00c6ff;
+}
+</style>
+
+</head>
+
+<body>
+
+<h2>👨‍💼 ATM Approval Panel</h2>
+<div id="list"></div>
+
+<script>
+
+function getUsers(){
+  return JSON.parse(localStorage.getItem("sk_bank_users"))||[];
+}
+
+function saveUsers(u){
+  localStorage.setItem("sk_bank_users",JSON.stringify(u));
+}
+
+function load(){
+  let users=getUsers();
+  let div=document.getElementById("list");
+  div.innerHTML="";
+
+  users.forEach(u=>{
+    if(u.vipPending){
+      div.innerHTML+=`
+      <p>
+      ${u.fullName} | ${u.accountNumber}
+      <button onclick="approve('${u.accountNumber}')">Approve</button>
+      </p>`;
+    }
+  });
+}
+
+function approve(acc){
+  let users=getUsers();
+  let user=users.find(u=>u.accountNumber===acc);
+
+  user.vipPending=false;
+  user.vipCard=true;
+
+  saveUsers(users);
+
+  alert("✅ Card Approved");
+  load();
+}
+
+load();
+
+</script>
+
+</body>
+</html>

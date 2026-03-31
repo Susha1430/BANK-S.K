@@ -20,8 +20,8 @@ body{
 
 /* container */
 .container{
-  max-width:400px;
   width:100%;
+  max-width:420px;
   padding:25px;
   border-radius:15px;
   background:rgba(255,255,255,0.1);
@@ -46,6 +46,11 @@ button{
   background:linear-gradient(90deg,#00c6ff,#0072ff);
   color:#fff;
   cursor:pointer;
+  transition:0.3s;
+}
+
+button:hover{
+  transform:scale(1.05);
 }
 
 /* loader */
@@ -55,8 +60,7 @@ button{
 }
 
 .bar{
-  height:8px;
-  width:0;
+  height:6px;
   background:linear-gradient(90deg,#ffd700,#00c6ff);
   animation:load 2s forwards;
 }
@@ -66,25 +70,45 @@ button{
   to{width:100%}
 }
 
-/* ATM CARD */
+/* ATM CARD FRONT */
 .card{
   display:none;
   margin-top:20px;
   width:320px;
   height:190px;
   border-radius:15px;
-  padding:20px;
+  padding:18px;
   background:linear-gradient(135deg,#000428,#004e92);
   position:relative;
 }
 
+/* BACK */
+.card-back{
+  display:none;
+  margin-top:20px;
+  width:320px;
+  height:190px;
+  border-radius:15px;
+  padding:18px;
+  background:linear-gradient(135deg,#232526,#414345);
+  position:relative;
+}
+
+.vip{
+  position:absolute;
+  top:15px;
+  right:15px;
+  font-weight:bold;
+  color:gold;
+}
+
 .bank{
-  font-size:18px;
+  font-size:16px;
   font-weight:bold;
 }
 
 .number{
-  margin-top:25px;
+  margin-top:40px;
   font-size:20px;
   letter-spacing:2px;
 }
@@ -92,13 +116,29 @@ button{
 .name{
   position:absolute;
   bottom:20px;
-  left:20px;
+  left:15px;
 }
 
 .exp{
   position:absolute;
   bottom:20px;
-  right:20px;
+  right:15px;
+}
+
+/* back text */
+.back-info{
+  font-size:14px;
+  margin-top:10px;
+}
+
+/* animation */
+.card, .card-back{
+  animation:fadeIn 0.7s ease;
+}
+
+@keyframes fadeIn{
+  from{opacity:0; transform:scale(0.9);}
+  to{opacity:1; transform:scale(1);}
 }
 
 </style>
@@ -110,80 +150,98 @@ button{
 
 <h2>💳 ATM Card Download</h2>
 
-<input id="cardInput" placeholder="Enter ATM Card Number">
+<input id="cardInput" placeholder="Enter ATM Number">
 <button onclick="downloadCard()">Download ATM Card PDF</button>
 
 <div class="loader" id="loader">
   <div class="bar"></div>
-  <p>Loading Card...</p>
+  <p>Loading...</p>
 </div>
 
 <p id="msg"></p>
 
-<!-- CARD DESIGN -->
-<div class="card" id="card">
+<!-- FRONT -->
+<div class="card" id="cardFront">
+  <div class="vip">VIP CARD</div>
   <div class="bank">S.K BANK</div>
-  <div class="number" id="cnum"></div>
-  <div class="name" id="cname"></div>
-  <div class="exp" id="cexp"></div>
+  <div class="number" id="f_number"></div>
+  <div class="name" id="f_name"></div>
+  <div class="exp" id="f_exp"></div>
+</div>
+
+<!-- BACK -->
+<div class="card-back" id="cardBack">
+  <div class="bank">S.K BANK</div>
+
+  <div class="back-info">
+    <p>💳 Holder: <span id="b_name"></span></p>
+    <p>🏦 Bank: S.K BANK</p>
+    <p>📅 Expiry: <span id="b_exp"></span></p>
+  </div>
 </div>
 
 </div>
-
-<!-- SOUND -->
-<audio id="sound">
-<source src="sound/sub.mp3" type="audio/mpeg">
-</audio>
 
 <script>
 
 const { jsPDF } = window.jspdf;
 
-function playSound(){
-  let s=document.getElementById("sound");
-  s.currentTime=0;
-  s.play().catch(()=>{});
-}
-
 function getUsers(){
-  return JSON.parse(localStorage.getItem("sk_bank_users"))||[];
+  return JSON.parse(localStorage.getItem("sk_bank_users")) || [];
 }
 
 function msg(t){
-  document.getElementById("msg").innerText=t;
+  document.getElementById("msg").innerText = t;
 }
 
 function downloadCard(){
 
-  playSound();
+  let num = document.getElementById("cardInput").value.trim();
+  let users = getUsers();
 
-  let num=document.getElementById("cardInput").value.trim();
-  let users=getUsers();
+  /* FIX: match correct field */
+  let user = users.find(u => u.accountNumber === num || u.cardNumber === num);
 
-  let user=users.find(u=>u.cardNumber===num);
-
-  if(!user) return msg("❌ Card not found");
+  if(!user){
+    return msg("❌ ATM number not found");
+  }
 
   document.getElementById("loader").style.display="block";
 
   setTimeout(async ()=>{
 
-    // fill card
-    document.getElementById("card").style.display="block";
-    document.getElementById("cnum").innerText=user.cardNumber;
-    document.getElementById("cname").innerText=user.name || "ACCOUNT HOLDER";
-    document.getElementById("cexp").innerText="EXP: "+user.expiry;
+    /* FRONT */
+    document.getElementById("cardFront").style.display="block";
+    document.getElementById("f_number").innerText = user.accountNumber || num;
+    document.getElementById("f_name").innerText = user.fullName;
+    document.getElementById("f_exp").innerText = "EXP: 12/30";
 
-    // convert to image
-    const canvas = await html2canvas(document.getElementById("card"));
-    const imgData = canvas.toDataURL("image/png");
+    /* BACK */
+    document.getElementById("cardBack").style.display="block";
+    document.getElementById("b_name").innerText = user.fullName;
+    document.getElementById("b_exp").innerText = "12/30";
 
+    /* create PDF */
     const pdf = new jsPDF();
-    pdf.addImage(imgData,'PNG',10,20,180,100);
 
-    pdf.save("ATM_Card.pdf");
+    const frontCanvas = await html2canvas(document.getElementById("cardFront"));
+    const backCanvas = await html2canvas(document.getElementById("cardBack"));
+
+    const frontImg = frontCanvas.toDataURL("image/png");
+    const backImg = backCanvas.toDataURL("image/png");
+
+    /* FRONT PAGE */
+    pdf.addImage(frontImg, "PNG", 10, 20, 180, 100);
+    pdf.addPage();
+
+    /* BACK PAGE */
+    pdf.addImage(backImg, "PNG", 10, 20, 180, 100);
+
+    pdf.save("ATM_CARD.pdf");
 
     msg("✅ ATM Card Downloaded");
+
+    document.getElementById("loader").style.display="none";
 
   },2000);
 }

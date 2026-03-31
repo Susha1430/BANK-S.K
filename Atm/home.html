@@ -7,13 +7,15 @@
 
 <style>
 
+/* RESET */
 *{
 margin:0;
 padding:0;
 box-sizing:border-box;
-font-family:Arial,sans-serif;
+font-family:'Segoe UI', sans-serif;
 }
 
+/* BODY */
 body{
 height:100vh;
 display:flex;
@@ -24,79 +26,110 @@ color:white;
 overflow:hidden;
 }
 
+/* MAIN */
 .container{
 text-align:center;
 }
 
+/* TITLE */
 .title{
-font-size:52px;
-color:#ffd700;
-text-shadow:0 0 15px #ffd700,0 0 35px #ffae00;
-margin-bottom:10px;
-animation:glow 2s infinite alternate;
+font-size:56px;
+font-weight:bold;
+background:linear-gradient(90deg,#ffd700,#ff9800,#00c6ff);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+animation:shine 3s infinite linear;
 }
 
+/* SUBTITLE */
 .subtitle{
 margin-bottom:30px;
-font-size:18px;
 opacity:0.8;
+font-size:18px;
 }
 
-/* buttons */
+/* BUTTON */
 .btn{
 display:block;
-width:260px;
+width:280px;
 margin:12px auto;
 padding:15px;
 border:none;
-border-radius:14px;
-background:linear-gradient(90deg,#00c6ff,#0072ff);
-color:white;
+border-radius:50px;
 font-size:17px;
+color:white;
 cursor:pointer;
-transition:0.3s;
-box-shadow:0 0 10px rgba(0,198,255,0.5);
+transition:0.4s;
+position:relative;
+overflow:hidden;
+background:linear-gradient(90deg,#00c6ff,#0072ff);
+box-shadow:0 0 15px rgba(0,198,255,0.5);
 }
 
+/* HOVER ANIMATION */
 .btn:hover{
-transform:translateY(-3px) scale(1.03);
-box-shadow:0 0 25px #00c6ff;
+transform:translateY(-4px) scale(1.05);
+box-shadow:0 0 30px #00c6ff;
 }
 
-/* ATM panel */
+/* SHINE EFFECT */
+.btn::before{
+content:"";
+position:absolute;
+top:0;
+left:-100%;
+width:100%;
+height:100%;
+background:linear-gradient(120deg,transparent,rgba(255,255,255,0.5),transparent);
+transition:0.6s;
+}
+
+.btn:hover::before{
+left:100%;
+}
+
+/* DIFFERENT COLORS */
+.btn.login{
+background:linear-gradient(90deg,#4facfe,#00f2fe);
+}
+
+.btn.apply{
+background:linear-gradient(90deg,#43e97b,#38f9d7);
+}
+
 .btn.atm{
-background:linear-gradient(90deg,#ff9800,#ff3d00);
+background:linear-gradient(90deg,#ff9800,#ff5722);
 }
 
-/* ATM download special */
 .btn.download{
 background:linear-gradient(90deg,#00ff9d,#00c853);
-box-shadow:0 0 10px rgba(0,255,157,0.6);
 }
 
-.btn.download:hover{
-box-shadow:0 0 25px #00ff9d;
+/* CLICK EFFECT */
+.btn:active{
+transform:scale(0.92);
 }
 
-/* loader */
+/* LOADER */
 .loader{
 margin-top:25px;
 display:none;
 }
 
 .loadingBox{
-width:280px;
-height:10px;
-background:rgba(255,255,255,0.2);
+width:300px;
+height:12px;
+background:rgba(255,255,255,0.15);
 border-radius:20px;
-margin:auto;
 overflow:hidden;
+margin:auto;
+box-shadow:0 0 10px rgba(255,255,255,0.2);
 }
 
 .bar{
+height:12px;
 width:0;
-height:10px;
-background:linear-gradient(90deg,#ffd700,#00c6ff,#00ff9d);
+background:linear-gradient(90deg,#ffd700,#ff9800,#00c6ff,#00ff9d);
 border-radius:20px;
 animation:load 2.5s forwards;
 }
@@ -105,21 +138,23 @@ animation:load 2.5s forwards;
 margin-top:12px;
 font-size:14px;
 letter-spacing:1px;
+animation:fadeText 1s infinite alternate;
 }
 
-/* animations */
+/* ANIMATIONS */
 @keyframes load{
 from{width:0}
 to{width:100%}
 }
 
-@keyframes glow{
-from{ text-shadow:0 0 10px #ffd700; }
-to{ text-shadow:0 0 35px #ff9800; }
+@keyframes fadeText{
+from{opacity:0.4}
+to{opacity:1}
 }
 
-.btn:active{
-transform:scale(0.95);
+@keyframes shine{
+0%{background-position:0%}
+100%{background-position:200%}
 }
 
 </style>
@@ -133,8 +168,8 @@ transform:scale(0.95);
 <div class="subtitle">Your Trust, Our Priority</div>
 
 <!-- BUTTONS -->
-<button class="btn" onclick="start('login')">🔐 Login</button>
-<button class="btn" onclick="start('apply')">💳 ATM Card Registration</button>
+<button class="btn login" onclick="start('login')">🔐 Login</button>
+<button class="btn apply" onclick="start('apply')">💳 ATM Card Registration</button>
 <button class="btn atm" onclick="start('atm')">🏧 ATM Panel</button>
 <button class="btn download" onclick="start('download')">📥 ATM Download</button>
 
@@ -144,14 +179,14 @@ transform:scale(0.95);
     <div class="bar"></div>
   </div>
   <div class="loadingText" id="loadingText">
-    Starting Secure Banking System...
+    Initializing Secure Banking...
   </div>
 </div>
 
 </div>
 
 <!-- SOUND -->
-<audio id="introSound" preload="auto">
+<audio id="introSound">
 <source src="sound/sub.mp3" type="audio/mpeg">
 </audio>
 
@@ -164,23 +199,28 @@ function start(type){
   sound.play().catch(()=>{});
 
   document.getElementById("loader").style.display="block";
-  document.querySelectorAll(".btn").forEach(b=>b.style.display="none");
+
+  document.querySelectorAll(".btn").forEach(b=>{
+    b.style.display="none";
+  });
 
   let text = document.getElementById("loadingText");
 
+  /* LOADING TEXT CHANGE */
   if(type==="login"){
-    text.innerText = "🔐 Opening Secure Login...";
+    text.innerText = "🔐 Loading Secure Login...";
   }
   else if(type==="apply"){
-    text.innerText = "💳 Opening ATM Registration...";
+    text.innerText = "💳 Opening Registration System...";
   }
   else if(type==="atm"){
-    text.innerText = "🏧 Loading ATM Panel...";
+    text.innerText = "🏧 Starting ATM Panel...";
   }
   else if(type==="download"){
-    text.innerText = "📥 Opening ATM Card Download...";
+    text.innerText = "📥 Preparing ATM Download...";
   }
 
+  /* REDIRECT */
   setTimeout(()=>{
 
     if(type==="login"){
@@ -193,10 +233,11 @@ function start(type){
       window.location.href="ATM system/panel.html";
     }
     else if(type==="download"){
-      window.location.href="ATM system/atm card download.html";  // 🔥 your download page
+      window.location.href="ATM system/atm card download.html";
     }
 
   },2500);
+
 }
 
 </script>

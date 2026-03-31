@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>S.K Bank Panel</title>
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:Arial,sans-serif;
+}
+
+body{
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+  padding:20px;
+  color:#fff;
+}
+
+.container{
+  width:100%;
+  max-width:500px;
+  background:rgba(255,255,255,0.12);
+  backdrop-filter:blur(12px);
+  border-radius:22px;
+  padding:25px;
+  box-shadow:0 12px 35px rgba(0,0,0,0.35);
+}
+
+h2{
+  text-align:center;
+  margin-bottom:15px;
+}
+
+/* loader */
+.loader{
+  display:none;
+  margin-top:10px;
+}
+
+.bar{
+  height:6px;
+  background:linear-gradient(90deg,#00c6ff,#0072ff);
+  animation:load 1.5s forwards;
+}
+
+@keyframes load{
+  from{width:0}
+  to{width:100%}
+}
+
+/* user box */
+.user{
+  background:rgba(255,255,255,0.1);
+  padding:12px;
+  border-radius:12px;
+  margin-top:10px;
+}
+
+.btn{
+  padding:6px 10px;
+  border:none;
+  border-radius:6px;
+  margin:5px 5px 0 0;
+  cursor:pointer;
+  transition:0.3s;
+}
+
+.edit{ background:#00c6ff; }
+.delete{ background:#ff4444; }
+
+.btn:hover{
+  transform:scale(1.1);
+}
+
+/* message */
+.msg{
+  margin-top:10px;
+  padding:10px;
+  border-radius:10px;
+  display:none;
+}
+
+.success{ background:#0a4; }
+.error{ background:#a00; }
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>🏦 S.K Bank Panel</h2>
+
+<div id="loader" class="loader">
+  <div class="bar"></div>
+</div>
+
+<div id="msg" class="msg"></div>
+
+<div id="userList"></div>
+
+</div>
+
+<script>
+
+function getUsers(){
+  return JSON.parse(localStorage.getItem("sk_bank_users")) || [];
+}
+
+function saveUsers(u){
+  localStorage.setItem("sk_bank_users", JSON.stringify(u));
+}
+
+function showMsg(text,type){
+  let m=document.getElementById("msg");
+  m.style.display="block";
+  m.className="msg "+type;
+  m.innerText=text;
+}
+
+function loadUsers(){
+  let users=getUsers();
+  let list=document.getElementById("userList");
+  list.innerHTML="";
+
+  if(users.length===0){
+    list.innerHTML="<p>No users found</p>";
+    return;
+  }
+
+  users.forEach((u,i)=>{
+    list.innerHTML+=`
+      <div class="user">
+        <b>${u.fullName}</b><br>
+        Acc: ${u.accountNumber}<br>
+        Mobile: ${u.mobile}<br>
+
+        <button class="btn edit" onclick="editUser(${i})">✏ Edit</button>
+        <button class="btn delete" onclick="deleteUser(${i})">🗑 Delete</button>
+      </div>
+    `;
+  });
+}
+
+/* DELETE */
+function deleteUser(i){
+  let users=getUsers();
+
+  document.getElementById("loader").style.display="block";
+
+  setTimeout(()=>{
+    users.splice(i,1);
+    saveUsers(users);
+    loadUsers();
+    showMsg("Account Deleted","success");
+    document.getElementById("loader").style.display="none";
+  },800);
+}
+
+/* EDIT */
+function editUser(i){
+  let users=getUsers();
+  let u=users[i];
+
+  let name=prompt("Edit Name:",u.fullName);
+  let mobile=prompt("Edit Mobile:",u.mobile);
+
+  if(name && mobile){
+    u.fullName=name;
+    u.mobile=mobile;
+
+    saveUsers(users);
+    loadUsers();
+    showMsg("Updated Successfully","success");
+  }
+}
+
+/* INIT */
+loadUsers();
+
+</script>
+
+</body>
+</html>

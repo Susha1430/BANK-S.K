@@ -1,291 +1,279 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>S.K Bank Transaction History</title>
-  
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: Arial;
-    }
-    
-    body {
-      min-height: 100vh;
-      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      padding: 30px;
-      color: #fff;
-    }
-    
-    .container {
-      width: 100%;
-      max-width: 750px;
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
-      border-radius: 20px;
-      padding: 30px;
-      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.35);
-      animation: fadeIn 0.8s ease;
-    }
-    
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-    
-    h1 {
-      text-align: center;
-      margin-bottom: 20px;
-      font-size: 28px;
-    }
-    
-    .input-box {
-      margin-bottom: 15px;
-    }
-    
-    input {
-      width: 100%;
-      padding: 12px;
-      border: none;
-      border-radius: 10px;
-      font-size: 15px;
-      outline: none;
-    }
-    
-    button {
-      width: 100%;
-      padding: 13px;
-      border: none;
-      border-radius: 10px;
-      background: #0072ff;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-      margin-top: 5px;
-      transition: 0.3s;
-    }
-    
-    button:hover {
-      opacity: 0.9;
-      transform: translateY(-2px);
-    }
-    
-    .history {
-      margin-top: 25px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    
-    .tx-card {
-      background: rgba(255, 255, 255, 0.08);
-      padding: 15px;
-      border-radius: 12px;
-      animation: slideIn 0.4s ease;
-    }
-    
-    @keyframes slideIn {
-      from {
-        opacity: 0;
-        transform: translateX(-20px);
-      }
-      
-      to {
-        opacity: 1;
-        transform: translateX(0);
-      }
-    }
-    
-    .tx-type {
-      font-weight: bold;
-      font-size: 16px;
-      margin-bottom: 4px;
-    }
-    
-    .deposit {
-      color: #5dff9b;
-    }
-    
-    .transfer {
-      color: #ffd56b;
-    }
-    
-    .atm {
-      color: #ff8a8a;
-    }
-    
-    .tx-amount {
-      font-size: 15px;
-      margin-bottom: 4px;
-    }
-    
-    .tx-date {
-      font-size: 13px;
-      opacity: 0.8;
-    }
-    
-    .empty {
-      text-align: center;
-      margin-top: 20px;
-      opacity: 0.7;
-      font-size: 15px;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>S.K Bank Transaction History</title>
+
+<style>
+
+/* RESET */
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Segoe UI', sans-serif;
+}
+
+/* BODY */
+body{
+min-height:100vh;
+background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+display:flex;
+justify-content:center;
+align-items:flex-start;
+padding:30px;
+color:#fff;
+}
+
+/* CONTAINER */
+.container{
+width:100%;
+max-width:800px;
+background:rgba(255,255,255,0.08);
+backdrop-filter:blur(12px);
+border-radius:20px;
+padding:30px;
+box-shadow:0 10px 35px rgba(0,0,0,0.4);
+animation:fadeIn 0.8s ease;
+}
+
+/* TITLE */
+h1{
+text-align:center;
+margin-bottom:20px;
+font-size:28px;
+background:linear-gradient(90deg,#ffd700,#00c6ff);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+}
+
+/* INPUT */
+input{
+width:100%;
+padding:14px;
+border:none;
+border-radius:10px;
+outline:none;
+font-size:15px;
+margin-bottom:10px;
+transition:0.3s;
+}
+
+input:focus{
+box-shadow:0 0 10px #00c6ff;
+}
+
+/* BUTTON */
+button{
+width:100%;
+padding:14px;
+border:none;
+border-radius:10px;
+background:linear-gradient(90deg,#00c6ff,#0072ff);
+color:#fff;
+font-weight:bold;
+cursor:pointer;
+transition:0.3s;
+position:relative;
+overflow:hidden;
+}
+
+/* BUTTON HOVER */
+button:hover{
+transform:translateY(-2px) scale(1.02);
+box-shadow:0 0 20px #00c6ff;
+}
+
+/* SHINE EFFECT */
+button::before{
+content:"";
+position:absolute;
+top:0;
+left:-100%;
+width:100%;
+height:100%;
+background:linear-gradient(120deg,transparent,rgba(255,255,255,0.4),transparent);
+transition:0.5s;
+}
+
+button:hover::before{
+left:100%;
+}
+
+/* HISTORY */
+.history{
+margin-top:25px;
+display:flex;
+flex-direction:column;
+gap:12px;
+}
+
+/* CARD */
+.tx-card{
+background:rgba(255,255,255,0.08);
+padding:16px;
+border-radius:12px;
+transition:0.3s;
+animation:slideIn 0.4s ease;
+border-left:5px solid transparent;
+}
+
+.tx-card:hover{
+transform:scale(1.02);
+}
+
+/* TYPES */
+.deposit{
+color:#5dff9b;
+border-left-color:#5dff9b;
+}
+
+.transfer{
+color:#ffd56b;
+border-left-color:#ffd56b;
+}
+
+.atm{
+color:#ff6b6b;
+border-left-color:#ff6b6b;
+}
+
+/* TEXT */
+.tx-type{
+font-weight:bold;
+font-size:16px;
+}
+
+.tx-amount{
+margin-top:4px;
+}
+
+.tx-date{
+margin-top:4px;
+font-size:13px;
+opacity:0.8;
+}
+
+/* EMPTY */
+.empty{
+text-align:center;
+margin-top:20px;
+opacity:0.7;
+}
+
+/* ANIMATIONS */
+@keyframes fadeIn{
+from{opacity:0;transform:translateY(20px);}
+to{opacity:1;transform:translateY(0);}
+}
+
+@keyframes slideIn{
+from{opacity:0;transform:translateX(-20px);}
+to{opacity:1;transform:translateX(0);}
+}
+
+</style>
+
 </head>
 
 <body>
-  
-  <div class="container">
-    
-    <h1>S.K Bank Transaction History</h1>
-    
-    <div class="input-box">
-      <input type="text" id="accountNumber" placeholder="Enter Bank Account Number">
-    </div>
-    
-    <button onclick="showHistory()">Show History</button>
-    
-    <div id="historyList" class="history"></div>
-    
-  </div>
-  
-  <script>
-    /* GET TRANSACTIONS */
-    
-    function getTransactions() {
-      return JSON.parse(localStorage.getItem("sk_bank_transactions")) || [];
-    }
-    
-    /* SAVE TRANSACTION */
-    
-    function saveTransaction(accountNumber, type, amount) {
-      
-      let transactions = getTransactions();
-      
-      const now = new Date();
-      
-      const transaction = {
-        accountNumber: accountNumber,
-        type: type,
-        amount: amount,
-        date: now.toLocaleDateString(),
-        time: now.toLocaleTimeString()
-      };
-      
-      transactions.push(transaction);
-      
-      localStorage.setItem("sk_bank_transactions", JSON.stringify(transactions));
-      
-    }
-    
-    /* SHOW HISTORY */
-    
-    function showHistory() {
-      
-      const acc = document.getElementById("accountNumber").value.trim();
-      const historyBox = document.getElementById("historyList");
-      
-      historyBox.innerHTML = "";
-      
-      if (acc === "") {
-        alert("Enter account number");
-        return;
-      }
-      
-      const transactions = getTransactions();
-      
-      const userTransactions = transactions.filter(tx => tx.accountNumber === acc);
-      
-      if (userTransactions.length === 0) {
-        
-        historyBox.innerHTML = "<div class='empty'>No Transaction History Found</div>";
-        return;
-        
-      }
-      
-      userTransactions.reverse().forEach(tx => {
-        
-        let typeClass = "";
-        
-        if (tx.type === "DEPOSIT") typeClass = "deposit";
-        if (tx.type === "TRANSFER") typeClass = "transfer";
-        if (tx.type === "ATM") typeClass = "atm";
-        
-        const div = document.createElement("div");
-        
-        div.className = "tx-card";
-        
-        div.innerHTML = `
 
-<div class="tx-type ${typeClass}">
-${tx.type}
+<div class="container">
+
+<h1>S.K Bank Transaction History</h1>
+
+<input type="text" id="accountNumber" placeholder="Enter Account Number">
+
+<button onclick="showHistory()">Show History</button>
+
+<div id="historyList" class="history"></div>
+
 </div>
 
-<div class="tx-amount">
-Amount : ₹${tx.amount}
-</div>
+<script>
 
-<div class="tx-date">
-${tx.date} | ${tx.time}
-</div>
+/* GET DATA */
+function getTransactions(){
+  return JSON.parse(localStorage.getItem("sk_bank_transactions")) || [];
+}
 
-`;
-        
-        historyBox.appendChild(div);
-        
-      });
-      
+/* SHOW HISTORY */
+function showHistory(){
+
+  const acc = document.getElementById("accountNumber").value.trim();
+  const box = document.getElementById("historyList");
+
+  box.innerHTML = "";
+
+  if(!acc){
+    alert("Enter account number");
+    return;
+  }
+
+  const transactions = getTransactions();
+
+  /* SAFE MATCH */
+  const userTx = transactions.filter(tx => String(tx.accountNumber).trim() === acc);
+
+  if(userTx.length === 0){
+    box.innerHTML = "<div class='empty'>❌ No Transaction Found</div>";
+    return;
+  }
+
+  userTx.reverse().forEach(tx => {
+
+    let cls = "";
+
+    if(tx.type === "DEPOSIT") cls = "deposit";
+    if(tx.type === "TRANSFER") cls = "transfer";
+    if(tx.type === "ATM") cls = "atm";
+
+    let div = document.createElement("div");
+    div.className = "tx-card " + cls;
+
+    div.innerHTML = `
+      <div class="tx-type">${tx.type}</div>
+      <div class="tx-amount">₹ ${tx.amount}</div>
+      <div class="tx-date">${tx.date} | ${tx.time}</div>
+    `;
+
+    box.appendChild(div);
+
+  });
+
+}
+
+/* DEMO DATA */
+if(!localStorage.getItem("sk_bank_transactions")){
+
+  localStorage.setItem("sk_bank_transactions", JSON.stringify([
+    {
+      accountNumber:"1234567890",
+      type:"DEPOSIT",
+      amount:500,
+      date:"31/03/2026",
+      time:"10:30 AM"
+    },
+    {
+      accountNumber:"1234567890",
+      type:"TRANSFER",
+      amount:200,
+      date:"31/03/2026",
+      time:"11:10 AM"
+    },
+    {
+      accountNumber:"1234567890",
+      type:"ATM",
+      amount:250,
+      date:"31/03/2026",
+      time:"12:00 PM"
     }
-    
-    /* DEMO DATA (optional) */
-    
-    if (!localStorage.getItem("sk_bank_transactions")) {
-      
-      let demo = [];
-      
-      demo.push({
-        accountNumber: "1234567890",
-        type: "DEPOSIT",
-        amount: 500,
-        date: "14/03/2026",
-        time: "10:30 AM"
-      });
-      
-      demo.push({
-        accountNumber: "1234567890",
-        type: "TRANSFER",
-        amount: 200,
-        date: "14/03/2026",
-        time: "11:10 AM"
-      });
-      
-      demo.push({
-        accountNumber: "1234567890",
-        type: "ATM",
-        amount: 250,
-        date: "14/03/2026",
-        time: "12:00 PM"
-      });
-      
-      localStorage.setItem("sk_bank_transactions", JSON.stringify(demo));
-      
-    }
-  </script>
-  
+  ]));
+
+}
+
+</script>
+
 </body>
-
 </html>

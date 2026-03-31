@@ -66,13 +66,13 @@ background:linear-gradient(90deg,#00c6ff,#0072ff);
 box-shadow:0 0 15px rgba(0,198,255,0.5);
 }
 
-/* HOVER ANIMATION */
+/* HOVER */
 .btn:hover{
 transform:translateY(-4px) scale(1.05);
 box-shadow:0 0 30px #00c6ff;
 }
 
-/* SHINE EFFECT */
+/* SHINE */
 .btn::before{
 content:"";
 position:absolute;
@@ -88,34 +88,35 @@ transition:0.6s;
 left:100%;
 }
 
-/* DIFFERENT COLORS */
-.btn.login{
-background:linear-gradient(90deg,#4facfe,#00f2fe);
-}
+/* COLORS */
+.btn.login{background:linear-gradient(90deg,#4facfe,#00f2fe);}
+.btn.apply{background:linear-gradient(90deg,#43e97b,#38f9d7);}
+.btn.atm{background:linear-gradient(90deg,#ff9800,#ff5722);}
+.btn.download{background:linear-gradient(90deg,#00ff9d,#00c853);}
 
-.btn.apply{
-background:linear-gradient(90deg,#43e97b,#38f9d7);
-}
-
-.btn.atm{
-background:linear-gradient(90deg,#ff9800,#ff5722);
-}
-
-.btn.download{
-background:linear-gradient(90deg,#00ff9d,#00c853);
-}
-
-/* CLICK EFFECT */
 .btn:active{
 transform:scale(0.92);
 }
 
 /* LOADER */
 .loader{
-margin-top:25px;
+margin-top:30px;
 display:none;
 }
 
+/* SPINNER */
+.spinner{
+width:45px;
+height:45px;
+border:4px solid rgba(255,255,255,0.2);
+border-top:4px solid #00c6ff;
+border-radius:50%;
+margin:0 auto 15px;
+animation:spin 1s linear infinite;
+box-shadow:0 0 15px #00c6ff;
+}
+
+/* LOADING BOX */
 .loadingBox{
 width:300px;
 height:12px;
@@ -123,22 +124,30 @@ background:rgba(255,255,255,0.15);
 border-radius:20px;
 overflow:hidden;
 margin:auto;
-box-shadow:0 0 10px rgba(255,255,255,0.2);
+box-shadow:0 0 10px rgba(0,198,255,0.3);
 }
 
+/* BAR */
 .bar{
 height:12px;
 width:0;
-background:linear-gradient(90deg,#ffd700,#ff9800,#00c6ff,#00ff9d);
+background:linear-gradient(90deg,#ffd700,#00c6ff,#00ff9d);
 border-radius:20px;
-animation:load 2.5s forwards;
+animation:load 2.5s ease-in-out forwards;
 }
 
+/* TEXT */
 .loadingText{
 margin-top:12px;
 font-size:14px;
 letter-spacing:1px;
-animation:fadeText 1s infinite alternate;
+animation:textPulse 1.5s infinite;
+}
+
+/* DOTS */
+.loadingText::after{
+content:"";
+animation:dots 1.5s infinite;
 }
 
 /* ANIMATIONS */
@@ -147,9 +156,21 @@ from{width:0}
 to{width:100%}
 }
 
-@keyframes fadeText{
-from{opacity:0.4}
-to{opacity:1}
+@keyframes spin{
+from{transform:rotate(0deg)}
+to{transform:rotate(360deg)}
+}
+
+@keyframes textPulse{
+0%{opacity:0.5}
+50%{opacity:1}
+100%{opacity:0.5}
+}
+
+@keyframes dots{
+0%{content:"."}
+33%{content:".."}
+66%{content:"..."}
 }
 
 @keyframes shine{
@@ -167,7 +188,6 @@ to{opacity:1}
 <div class="title">S.K BANK</div>
 <div class="subtitle">Your Trust, Our Priority</div>
 
-<!-- BUTTONS -->
 <button class="btn login" onclick="start('login')">🔐 Login</button>
 <button class="btn apply" onclick="start('apply')">💳 ATM Card Registration</button>
 <button class="btn atm" onclick="start('atm')">🏧 ATM Panel</button>
@@ -175,12 +195,17 @@ to{opacity:1}
 
 <!-- LOADER -->
 <div class="loader" id="loader">
+  
+  <div class="spinner"></div>
+
   <div class="loadingBox">
     <div class="bar"></div>
   </div>
+
   <div class="loadingText" id="loadingText">
-    Initializing Secure Banking...
+    Initializing Secure Banking
   </div>
+
 </div>
 
 </div>
@@ -206,21 +231,19 @@ function start(type){
 
   let text = document.getElementById("loadingText");
 
-  /* LOADING TEXT CHANGE */
   if(type==="login"){
-    text.innerText = "🔐 Loading Secure Login...";
+    text.innerText = "🔐 Loading Secure Login";
   }
   else if(type==="apply"){
-    text.innerText = "💳 Opening Registration System...";
+    text.innerText = "💳 Opening Registration System";
   }
   else if(type==="atm"){
-    text.innerText = "🏧 Starting ATM Panel...";
+    text.innerText = "🏧 Starting ATM Panel";
   }
   else if(type==="download"){
-    text.innerText = "📥 Preparing ATM Download...";
+    text.innerText = "📥 Preparing ATM Download";
   }
 
-  /* REDIRECT */
   setTimeout(()=>{
 
     if(type==="login"){

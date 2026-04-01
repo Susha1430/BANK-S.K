@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>DJ PRO FINAL</title>
+<title>DJ PRO FINAL - 3D + ANIMATED EQ</title>
 
 <style>
 body{
@@ -13,7 +13,6 @@ body{
  text-align:center;
 }
 
-/* LAYOUT */
 .dj{
  display:flex;
  justify-content:space-around;
@@ -27,7 +26,6 @@ body{
  border-radius:15px;
 }
 
-/* JOG */
 .jog{
  width:140px;
  height:140px;
@@ -44,7 +42,6 @@ body{
  to{transform:rotate(360deg)}
 }
 
-/* BUTTON */
 button{
  margin:5px;
  padding:8px;
@@ -54,7 +51,6 @@ button{
  cursor:pointer;
 }
 
-/* MIXER */
 .mixer{margin-top:10px;}
 input[type=range]{width:80%;}
 
@@ -68,6 +64,7 @@ input[type=range]{width:80%;}
  background:#222831;
  transition:0.4s;
  padding:15px;
+ overflow-y:auto;
 }
 .eqPanel.active{right:0;}
 
@@ -78,62 +75,50 @@ input[type=range]{width:80%;}
  margin-top:20px;
 }
 
-/* ROW */
 .eqRow{
  display:flex;
  align-items:center;
  gap:10px;
 }
 
-/* LEFT LABEL */
-.freq{
- width:40px;
- color:#bbb;
- font-size:14px;
- text-align:right;
-}
+.freq{width:50px;color:#bbb;font-size:13px;text-align:right;}
 
-/* SLIDER */
+/* 🔥 ANIMATED SLIDER */
 .eqRow input[type=range]{
  -webkit-appearance:none;
- appearance:none;
  flex:1;
  height:10px;
- background:#111;
  border-radius:10px;
- cursor:pointer;
+ background:linear-gradient(to right,#00ff88 50%, #111 50%);
+ transition:0.2s;
+ box-shadow:0 0 5px #00ff88;
 }
 
-/* THUMB */
+.eqRow input[type=range]:hover{
+ box-shadow:0 0 10px #00ffcc, 0 0 20px #00ffcc;
+}
+
+/* 🔥 GLOW THUMB */
 .eqRow input[type=range]::-webkit-slider-thumb{
  -webkit-appearance:none;
  width:26px;
  height:26px;
- background:linear-gradient(#2a2a2a,#000);
- border:2px solid #333;
+ background:linear-gradient(#00f2ff,#0066ff);
  border-radius:6px;
- box-shadow:
-  inset 0 0 4px #000,
-  0 0 8px rgba(0,0,0,0.9);
+ box-shadow:0 0 10px #00f2ff, 0 0 20px #00f2ff;
+ transition:0.2s;
 }
 
-/* RIGHT VALUE */
-.value{
- width:30px;
- text-align:left;
- color:#bbb;
- font-size:14px;
-}
+.value{width:35px;color:#bbb;font-size:13px;}
 </style>
 </head>
 
 <body>
 
-<h2>🎧 DJ PRO FINAL</h2>
+<h2>🎧 DJ PRO FINAL (ANIMATED EQ + 3D)</h2>
 
 <div class="dj">
 
-<!-- DECK A -->
 <div class="deck">
 <h3 id="titleA">Deck A</h3>
 <div class="jog"></div>
@@ -144,7 +129,6 @@ input[type=range]{width:80%;}
 <button onclick="next('A')">⏭</button>
 </div>
 
-<!-- DECK B -->
 <div class="deck">
 <h3 id="titleB">Deck B</h3>
 <div class="jog red"></div>
@@ -165,13 +149,17 @@ input[type=range]{width:80%;}
 <input type="range" id="master" min="0" max="1" step="0.01" value="1">
 
 <br><br>
+<button onclick="toggle3D()" id="btn3D">🎧 3D ON</button>
+<br><br>
 <button onclick="toggleEQ()">🎛 EQ PANEL</button>
 </div>
 
-<!-- EQ PANEL -->
 <div class="eqPanel" id="eqPanel">
-<h3>10 Band EQ</h3>
+<h3>15 Band EQ</h3>
 <div class="eqBox" id="eqBox"></div>
+
+<button onclick="clearEQ()">🧹 Clear EQ</button>
+<br><br>
 <button onclick="toggleEQ()">Close</button>
 </div>
 
@@ -184,96 +172,155 @@ let audioB=document.getElementById("audioB");
 
 let ctx=new(window.AudioContext||window.webkitAudioContext)();
 
-/* SOURCES */
 let srcA=ctx.createMediaElementSource(audioA);
 let srcB=ctx.createMediaElementSource(audioB);
 
-/* GAINS */
 let gainA=ctx.createGain();
 let gainB=ctx.createGain();
 let masterGain=ctx.createGain();
+
+/* 3D SYSTEM */
+let pannerA=ctx.createPanner();
+let pannerB=ctx.createPanner();
+
+pannerA.panningModel="HRTF";
+pannerB.panningModel="HRTF";
+
+let is3D=true;
 
 /* CONNECT */
 srcA.connect(gainA);
 srcB.connect(gainB);
 
-let mixGain=ctx.createGain();
-gainA.connect(mixGain);
-gainB.connect(mixGain);
+gainA.connect(pannerA);
+gainB.connect(pannerB);
 
-/* EQ SYSTEM */
-let freqs=[31,62,125,250,500,1000,2000,4000,8000,16000];
+let mixGain=ctx.createGain();
+pannerA.connect(mixGain);
+pannerB.connect(mixGain);
+
+/* ✅ 15 BAND EQ */
+let freqs=[
+25,40,63,100,160,
+250,400,630,1000,
+1600,2500,4000,6300,10000,16000
+];
+
 let bands=[];
 let eqBox=document.getElementById("eqBox");
 
-freqs.forEach((f)=>{
-
+freqs.forEach(f=>{
  let row=document.createElement("div");
  row.className="eqRow";
 
  let freq=document.createElement("div");
  freq.className="freq";
- freq.innerText=(f>=1000?f/1000+"k":f);
+ freq.innerText=f>=1000?(f/1000).toFixed(1)+"k":f;
 
  let slider=document.createElement("input");
- slider.type="range";
- slider.min=-30;
- slider.max=30;
- slider.value=0;
+ slider.type="range"; slider.min=-30; slider.max=30; slider.value=0;
 
  let value=document.createElement("div");
- value.className="value";
- value.innerText="0";
+ value.className="value"; value.innerText="0";
 
- row.appendChild(freq);
- row.appendChild(slider);
- row.appendChild(value);
+ row.append(freq,slider,value);
  eqBox.appendChild(row);
 
  let eq=ctx.createBiquadFilter();
  eq.type="peaking";
  eq.frequency.value=f;
- eq.gain.value=0;
 
- function update(){
-  let val=slider.value;
+ slider.oninput=()=>{
+  let val=parseInt(slider.value);
+
   eq.gain.value=val;
+  value.innerText=val>0?("+"+val):val;
 
-  value.innerText = val>0 ? "+"+val : val;
+  let percent=(val-slider.min)/(slider.max-slider.min)*100;
 
-  let percent=(val - slider.min)/(slider.max - slider.min)*100;
+  let color;
+  if(val<-10) color="#00ff88";
+  else if(val<10) color="#f7c948";
+  else color="#ff3b3b";
 
   slider.style.background=
-   `linear-gradient(to right,#f7c948 ${percent}%,#111 ${percent}%)`;
- }
+  `linear-gradient(to right, ${color} ${percent}%, #111 ${percent}%)`;
 
- slider.oninput=update;
- update();
+  slider.style.boxShadow=`0 0 ${Math.abs(val)}px ${color}`;
+ };
 
  bands.push(eq);
 });
 
 /* CONNECT EQ */
 mixGain.connect(bands[0]);
-for(let i=0;i<bands.length-1;i++){
- bands[i].connect(bands[i+1]);
-}
+for(let i=0;i<bands.length-1;i++) bands[i].connect(bands[i+1]);
 bands[bands.length-1].connect(masterGain);
 masterGain.connect(ctx.destination);
 
-/* UNLOCK AUDIO */
-document.body.addEventListener("click",()=>ctx.resume(),{once:true});
+/* AUTO 3D */
+let angleA=0, angleB=Math.PI;
+
+function auto3D(){
+ if(is3D){
+  angleA+=0.01;
+  angleB+=0.01;
+
+  pannerA.setPosition(Math.cos(angleA),0,Math.sin(angleA));
+  pannerB.setPosition(Math.cos(angleB),0,Math.sin(angleB));
+ }else{
+  pannerA.setPosition(0,0,1);
+  pannerB.setPosition(0,0,1);
+ }
+
+ requestAnimationFrame(auto3D);
+}
+auto3D();
+
+/* 3D TOGGLE */
+function toggle3D(){
+ is3D=!is3D;
+ let btn=document.getElementById("btn3D");
+
+ if(is3D){
+  btn.innerText="🎧 3D ON";
+  btn.style.background="#00f2ff";
+ }else{
+  btn.innerText="❌ 3D OFF";
+  btn.style.background="#555";
+ }
+}
+
+/* SMART AUTO ROUTE */
+function autoRoute(){
+ if(audioA.paused && !audioB.paused){
+  gainA.gain.value=0;
+  gainB.gain.value=1;
+ }
+ else if(audioB.paused && !audioA.paused){
+  gainA.gain.value=1;
+  gainB.gain.value=0;
+ }
+ else{
+  gainA.gain.value=0.5;
+  gainB.gain.value=0.5;
+ }
+
+ requestAnimationFrame(autoRoute);
+}
+autoRoute();
+
+/* AUDIO UNLOCK */
+document.body.onclick=()=>ctx.resume();
 
 /* SONG SYSTEM */
 let songs=[],indexA=0,indexB=1;
 
 indexedDB.open("MusicDB",1).onsuccess=e=>{
  let db=e.target.result;
-
  db.transaction("songs","readonly")
  .objectStore("songs")
  .getAll().onsuccess=e=>{
-
   songs=e.target.result;
 
   if(songs.length){
@@ -293,25 +340,33 @@ function play(d){ (d==='A'?audioA:audioB).play(); }
 function pause(d){ (d==='A'?audioA:audioB).pause(); }
 
 function next(d){
+ if(!songs.length) return;
+
  if(d==='A'){
   indexA=(indexA+1)%songs.length;
   audioA.src=songs[indexA].data;
+  titleA.innerText=songs[indexA].name;
   play('A');
  }else{
   indexB=(indexB+1)%songs.length;
   audioB.src=songs[indexB].data;
+  titleB.innerText=songs[indexB].name;
   play('B');
  }
 }
 
 function prev(d){
+ if(!songs.length) return;
+
  if(d==='A'){
   indexA=(indexA-1+songs.length)%songs.length;
   audioA.src=songs[indexA].data;
+  titleA.innerText=songs[indexA].name;
   play('A');
  }else{
   indexB=(indexB-1+songs.length)%songs.length;
   audioB.src=songs[indexB].data;
+  titleB.innerText=songs[indexB].name;
   play('B');
  }
 }
@@ -327,7 +382,21 @@ master.oninput=e=>{
  masterGain.gain.value=e.target.value;
 };
 
-/* EQ PANEL */
+/* EQ CLEAR */
+function clearEQ(){
+ document.querySelectorAll(".eqRow input").forEach((s,i)=>{
+  s.value=0;
+  bands[i].gain.value=0;
+
+  s.style.background="linear-gradient(to right,#00ff88 50%,#111 50%)";
+  s.style.boxShadow="0 0 5px #00ff88";
+
+  let valueBox=s.parentElement.querySelector(".value");
+  valueBox.innerText="0";
+ });
+}
+
+/* PANEL */
 function toggleEQ(){
  document.getElementById("eqPanel").classList.toggle("active");
 }

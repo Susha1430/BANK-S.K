@@ -61,12 +61,13 @@ position:relative;
 overflow:hidden;
 }
 
+/* HOVER */
 .nav-buttons button:hover{
 transform:translateY(-3px);
 box-shadow:0 5px 15px rgba(0,114,255,0.4);
 }
 
-/* BUTTON ANIMATION */
+/* SHINE EFFECT */
 .nav-buttons button::after{
 content:"";
 position:absolute;
@@ -82,7 +83,12 @@ transition:0.5s;
 left:100%;
 }
 
-/* MAIN BANNER */
+/* MUSIC BUTTON */
+#musicBtn{
+background:linear-gradient(90deg,#ff8c00,#ff3c3c);
+}
+
+/* BANNER */
 .banner{
 width:100%;
 display:flex;
@@ -165,7 +171,7 @@ font-size:14px;
 <body>
 
 <!-- 🎵 BACKGROUND MUSIC -->
-<audio id="bgMusic" src="sound/background.mp3" autoplay loop></audio>
+<audio id="bgMusic" src="sound/background.mp3" loop></audio>
 
 <div class="header">
 
@@ -187,10 +193,12 @@ font-size:14px;
 
 <button onclick="location.href='Bank system/bank panel.html'">Bank panel</button>
 
-</div>
+<!-- 🎵 MUSIC BUTTON -->
+<button id="musicBtn" onclick="toggleMusic()">🔇 Music OFF</button>
 
 </div>
 
+</div>
 
 <div class="banner">
 
@@ -201,7 +209,6 @@ font-size:14px;
 <div class="subtitle">Your Trust, Our Priority</div>
 
 </div>
-
 
 <div class="services">
 
@@ -237,29 +244,41 @@ font-size:14px;
 
 </div>
 
-
 <div class="footer">
 © 2026 S.K Bank • Secure • Trusted • Digital Banking
 </div>
 
 <script>
 
-// Background music fix for browser restrictions
-window.addEventListener("load", function () {
-    const music = document.getElementById("bgMusic");
-    music.volume = 0.3;
+const music = document.getElementById("bgMusic");
+const btn = document.getElementById("musicBtn");
 
-    const playPromise = music.play();
+music.volume = 0.5;
 
-    if (playPromise !== undefined) {
-        playPromise.catch(() => {
-            // Play on first user interaction
-            document.body.addEventListener("click", () => {
-                music.play();
-            }, { once: true });
-        });
-    }
+/* TRY AUTO PLAY */
+window.addEventListener("load", () => {
+    music.play().then(() => {
+        btn.innerText = "🔊 Music ON";
+    }).catch(() => {
+        btn.innerText = "🔇 Click to Start Music";
+    });
 });
+
+/* START ON FIRST USER CLICK (IMPORTANT) */
+document.body.addEventListener("click", () => {
+    music.play();
+}, { once: true });
+
+/* TOGGLE MUSIC */
+function toggleMusic() {
+    if (music.paused) {
+        music.play();
+        btn.innerText = "🔊 Music ON";
+    } else {
+        music.pause();
+        btn.innerText = "🔇 Music OFF";
+    }
+}
 
 </script>
 

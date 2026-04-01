@@ -21,7 +21,6 @@ color:white;
 }
 
 /* HEADER */
-
 .header{
 width:100%;
 padding:15px 30px;
@@ -34,7 +33,6 @@ box-shadow:0 5px 15px rgba(0,0,0,0.4);
 }
 
 /* LOGO */
-
 .logo{
 font-size:28px;
 font-weight:bold;
@@ -43,7 +41,6 @@ color:#00e5ff;
 }
 
 /* NAV BUTTONS */
-
 .nav-buttons{
 display:flex;
 gap:10px;
@@ -70,7 +67,6 @@ box-shadow:0 5px 15px rgba(0,114,255,0.4);
 }
 
 /* BUTTON ANIMATION */
-
 .nav-buttons button::after{
 content:"";
 position:absolute;
@@ -87,7 +83,6 @@ left:100%;
 }
 
 /* MAIN BANNER */
-
 .banner{
 width:100%;
 display:flex;
@@ -124,7 +119,6 @@ color:#d6f4ff;
 }
 
 /* SERVICE CARDS */
-
 .services{
 margin-top:40px;
 display:grid;
@@ -170,6 +164,9 @@ font-size:14px;
 
 <body>
 
+<!-- 🎵 BACKGROUND MUSIC -->
+<audio id="bgMusic" src="sound/background.mp3" autoplay loop></audio>
+
 <div class="header">
 
 <div class="logo">S.K Bank</div>
@@ -197,7 +194,7 @@ font-size:14px;
 
 <div class="banner">
 
-<img src="image/S.K Bank&apos;s grand heritage vision.png">
+<img src="image/S.K Bank's grand heritage vision.png">
 
 <div class="title">Welcome to S.K Bank</div>
 
@@ -244,6 +241,27 @@ font-size:14px;
 <div class="footer">
 © 2026 S.K Bank • Secure • Trusted • Digital Banking
 </div>
+
+<script>
+
+// Background music fix for browser restrictions
+window.addEventListener("load", function () {
+    const music = document.getElementById("bgMusic");
+    music.volume = 0.3;
+
+    const playPromise = music.play();
+
+    if (playPromise !== undefined) {
+        playPromise.catch(() => {
+            // Play on first user interaction
+            document.body.addEventListener("click", () => {
+                music.play();
+            }, { once: true });
+        });
+    }
+});
+
+</script>
 
 </body>
 </html>

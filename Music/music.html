@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Modern Card Music Player</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial;
+    background: linear-gradient(135deg,#6a85b6,#bac8e0);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* CARD */
+.player {
+    width: 300px;
+    padding: 20px;
+    border-radius: 20px;
+    background: #111;
+    text-align: center;
+    color: white;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+}
+
+/* ICON ROW */
+.top {
+    display: flex;
+    justify-content: space-between;
+    font-size: 20px;
+}
+
+/* ALBUM BOX */
+.album {
+    width: 120px;
+    height: 120px;
+    margin: 20px auto;
+    border-radius: 15px;
+    border: 2px solid #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+}
+
+/* TITLE */
+#title {
+    font-size: 18px;
+}
+
+.sub {
+    font-size: 12px;
+    color: #aaa;
+}
+
+/* PROGRESS */
+input[type=range] {
+    width: 100%;
+    margin-top: 15px;
+}
+
+/* CONTROLS */
+.controls {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-top: 15px;
+}
+
+.controls button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 22px;
+    cursor: pointer;
+}
+
+/* BIG PLAY */
+.play {
+    background: #3a7bd5;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    font-size: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* WAVE */
+canvas {
+    width: 100%;
+    height: 60px;
+    margin-top: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="player">
+
+    <div class="top">
+        ☰ ❤️
+    </div>
+
+    <div class="album">🎵</div>
+
+    <div id="title">Loading...</div>
+    <div class="sub">Singer name</div>
+
+    <input type="range" id="progress" value="0">
+
+    <div class="controls">
+        <button onclick="prev()">⏮</button>
+        <button class="play" onclick="toggle()">▶</button>
+        <button onclick="next()">⏭</button>
+    </div>
+
+    <canvas id="wave"></canvas>
+
+    <audio id="audio"></audio>
+
+</div>
+
+<script>
+let audio = document.getElementById("audio");
+let title = document.getElementById("title");
+let progress = document.getElementById("progress");
+
+let songs = [];
+let index = 0;
+
+/* LOAD FROM INDEXEDDB */
+let request = indexedDB.open("MusicDB", 1);
+
+request.onsuccess = e => {
+    let db = e.target.result;
+
+    let tx = db.transaction("songs","readonly");
+    let store = tx.objectStore("songs");
+
+    store.getAll().onsuccess = e => {
+        songs = e.target.result;
+
+        if (!songs.length) {
+            songs = [{
+                name:"Sample Track",
+                data:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+            }];
+        }
+
+        playSong(index);
+    };
+};
+
+/* PLAY */
+function playSong(i){
+    let s = songs[i];
+    if(!s) return;
+
+    title.innerText = s.name;
+    audio.src = s.data || s.link;
+
+    audio.play().catch(()=>{});
+    startWave();
+}
+
+function toggle(){
+    if(audio.paused) audio.play();
+    else audio.pause();
+}
+
+function next(){
+    index = (index+1)%songs.length;
+    playSong(index);
+}
+
+function prev(){
+    index = (index-1+songs.length)%songs.length;
+    playSong(index);
+}
+
+/* PROGRESS */
+audio.ontimeupdate = ()=>{
+    if(audio.duration){
+        progress.value = (audio.currentTime/audio.duration)*100;
+    }
+};
+
+progress.oninput = ()=>{
+    audio.currentTime = (progress.value/100)*audio.duration;
+};
+
+/* VISUALIZER */
+let ctx, analyser, source, dataArray;
+
+function startWave(){
+    if(ctx) return;
+
+    ctx = new (window.AudioContext||window.webkitAudioContext)();
+    source = ctx.createMediaElementSource(audio);
+    analyser = ctx.createAnalyser();
+
+    source.connect(analyser);
+    analyser.connect(ctx.destination);
+
+    dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+    draw();
+}
+
+function draw(){
+    requestAnimationFrame(draw);
+    if(!analyser) return;
+
+    analyser.getByteFrequencyData(dataArray);
+
+    let c = wave.getContext("2d");
+    wave.width = 300;
+
+    c.clearRect(0,0,wave.width,wave.height);
+
+    let barWidth = wave.width/dataArray.length;
+
+    for(let i=0;i<dataArray.length;i++){
+        let h = dataArray[i]/3;
+
+        c.fillStyle = "#3a7bd5";
+        c.fillRect(i*barWidth, wave.height-h, barWidth, h);
+    }
+}
+</script>
+
+</body>
+</html>

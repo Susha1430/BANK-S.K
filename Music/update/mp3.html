@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Music System (20MB+ Storage)</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial;
+    background: linear-gradient(135deg, #141e30, #243b55);
+    color: white;
+    text-align: center;
+}
+
+h1 {
+    margin-top: 20px;
+    animation: glow 2s infinite alternate;
+}
+
+@keyframes glow {
+    from { text-shadow: 0 0 5px #fff; }
+    to { text-shadow: 0 0 20px #00f2ff; }
+}
+
+input, button {
+    padding: 10px;
+    margin: 8px;
+    border-radius: 8px;
+    border: none;
+}
+
+button {
+    background: #00f2ff;
+    cursor: pointer;
+}
+
+.song {
+    background: rgba(255,255,255,0.1);
+    padding: 12px;
+    margin: 10px auto;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 400px;
+}
+
+.delete-btn {
+    margin-top: 8px;
+    background: red;
+    color: white;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🎵 Music System (Unlimited Storage)</h1>
+
+<input type="file" id="file" accept="audio/*"><br>
+<button onclick="addSong()">➕ Add Song</button>
+
+<div id="list">Loading...</div>
+
+<script>
+let db;
+
+/* ✅ CREATE DATABASE */
+let request = indexedDB.open("MusicDB", 1);
+
+request.onupgradeneeded = function(e) {
+    db = e.target.result;
+    db.createObjectStore("songs", { keyPath: "id", autoIncrement: true });
+};
+
+request.onsuccess = function(e) {
+    db = e.target.result;
+    showSongs();
+};
+
+request.onerror = function() {
+    alert("Database error!");
+};
+
+/* ➕ ADD SONG */
+function addSong() {
+    let file = document.getElementById("file").files[0];
+
+    if (!file) {
+        alert("❌ Select MP3 file");
+        return;
+    }
+
+    /* SIZE CHECK (Optional) */
+    if (file.size > 20 * 1024 * 1024) {
+        alert("⚠ File is bigger than 20MB but still supported!");
+    }
+
+    let reader = new FileReader();
+
+    reader.onload = function(e) {
+
+        let tx = db.transaction("songs", "readwrite");
+        let store = tx.objectStore("songs");
+
+        store.add({
+            name: file.name,
+            data: e.target.result
+        });
+
+        tx.oncomplete = () => {
+            showSongs();
+        };
+    };
+
+    reader.readAsDataURL(file);
+}
+
+/* 📃 SHOW SONGS */
+function showSongs() {
+    let list = document.getElementById("list");
+    list.innerHTML = "";
+
+    let tx = db.transaction("songs", "readonly");
+    let store = tx.objectStore("songs");
+
+    store.openCursor().onsuccess = function(e) {
+        let cursor = e.target.result;
+
+        if (cursor) {
+            let song = cursor.value;
+
+            let div = document.createElement("div");
+            div.className = "song";
+
+            div.innerHTML = `
+                🎧 ${song.name}<br><br>
+
+                <button onclick="playSong(${song.id})">▶ Play</button>
+                <button class="delete-btn" onclick="deleteSong(${song.id})">❌ Delete</button>
+            `;
+
+            list.appendChild(div);
+
+            cursor.continue();
+        } else {
+            if (!list.innerHTML) {
+                list.innerHTML = "<p>No songs saved</p>";
+            }
+        }
+    };
+}
+
+/* ▶ PLAY */
+function playSong(id) {
+    let tx = db.transaction("songs", "readonly");
+    let store = tx.objectStore("songs");
+
+    let req = store.get(id);
+
+    req.onsuccess = function() {
+        let song = req.result;
+
+        let win = window.open();
+        win.document.write(`
+            <audio src="${song.data}" controls autoplay style="width:100%"></audio>
+        `);
+    };
+}
+
+/* ❌ DELETE */
+function deleteSong(id) {
+    let tx = db.transaction("songs", "readwrite");
+    let store = tx.objectStore("songs");
+
+    store.delete(id);
+
+    tx.oncomplete = showSongs;
+}
+</script>
+
+</body>
+</html>

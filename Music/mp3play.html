@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>DJ PRO FINAL</title>
+
+<style>
+body{
+ margin:0;
+ background:#0a0a0a;
+ color:#fff;
+ font-family:Arial;
+ text-align:center;
+}
+
+/* LAYOUT */
+.dj{
+ display:flex;
+ justify-content:space-around;
+ padding:10px;
+}
+
+.deck{
+ width:45%;
+ background:#111;
+ padding:10px;
+ border-radius:15px;
+}
+
+/* JOG */
+.jog{
+ width:140px;
+ height:140px;
+ border-radius:50%;
+ margin:auto;
+ background:radial-gradient(#333,#000);
+ border:4px solid cyan;
+ animation:spin 5s linear infinite;
+}
+.red{border-color:red;}
+
+@keyframes spin{
+ from{transform:rotate(0)}
+ to{transform:rotate(360deg)}
+}
+
+/* BUTTON */
+button{
+ margin:5px;
+ padding:8px;
+ border:none;
+ border-radius:8px;
+ background:#00f2ff;
+ cursor:pointer;
+}
+
+/* MIXER */
+.mixer{margin-top:10px;}
+input[type=range]{width:80%;}
+
+/* EQ PANEL */
+.eqPanel{
+ position:fixed;
+ right:-340px;
+ top:0;
+ width:340px;
+ height:100%;
+ background:#222831;
+ transition:0.4s;
+ padding:15px;
+}
+.eqPanel.active{right:0;}
+
+.eqBox{
+ display:flex;
+ flex-direction:column;
+ gap:18px;
+ margin-top:20px;
+}
+
+/* ROW */
+.eqRow{
+ display:flex;
+ align-items:center;
+ gap:10px;
+}
+
+/* LEFT LABEL */
+.freq{
+ width:40px;
+ color:#bbb;
+ font-size:14px;
+ text-align:right;
+}
+
+/* SLIDER */
+.eqRow input[type=range]{
+ -webkit-appearance:none;
+ appearance:none;
+ flex:1;
+ height:10px;
+ background:#111;
+ border-radius:10px;
+ cursor:pointer;
+}
+
+/* THUMB */
+.eqRow input[type=range]::-webkit-slider-thumb{
+ -webkit-appearance:none;
+ width:26px;
+ height:26px;
+ background:linear-gradient(#2a2a2a,#000);
+ border:2px solid #333;
+ border-radius:6px;
+ box-shadow:
+  inset 0 0 4px #000,
+  0 0 8px rgba(0,0,0,0.9);
+}
+
+/* RIGHT VALUE */
+.value{
+ width:30px;
+ text-align:left;
+ color:#bbb;
+ font-size:14px;
+}
+</style>
+</head>
+
+<body>
+
+<h2>🎧 DJ PRO FINAL</h2>
+
+<div class="dj">
+
+<!-- DECK A -->
+<div class="deck">
+<h3 id="titleA">Deck A</h3>
+<div class="jog"></div>
+
+<button onclick="prev('A')">⏮</button>
+<button onclick="play('A')">▶</button>
+<button onclick="pause('A')">⏸</button>
+<button onclick="next('A')">⏭</button>
+</div>
+
+<!-- DECK B -->
+<div class="deck">
+<h3 id="titleB">Deck B</h3>
+<div class="jog red"></div>
+
+<button onclick="prev('B')">⏮</button>
+<button onclick="play('B')">▶</button>
+<button onclick="pause('B')">⏸</button>
+<button onclick="next('B')">⏭</button>
+</div>
+
+</div>
+
+<div class="mixer">
+<h3>Crossfader</h3>
+<input type="range" id="cross" min="0" max="1" step="0.01" value="0.5">
+
+<h3>Master Volume</h3>
+<input type="range" id="master" min="0" max="1" step="0.01" value="1">
+
+<br><br>
+<button onclick="toggleEQ()">🎛 EQ PANEL</button>
+</div>
+
+<!-- EQ PANEL -->
+<div class="eqPanel" id="eqPanel">
+<h3>10 Band EQ</h3>
+<div class="eqBox" id="eqBox"></div>
+<button onclick="toggleEQ()">Close</button>
+</div>
+
+<audio id="audioA"></audio>
+<audio id="audioB"></audio>
+
+<script>
+let audioA=document.getElementById("audioA");
+let audioB=document.getElementById("audioB");
+
+let ctx=new(window.AudioContext||window.webkitAudioContext)();
+
+/* SOURCES */
+let srcA=ctx.createMediaElementSource(audioA);
+let srcB=ctx.createMediaElementSource(audioB);
+
+/* GAINS */
+let gainA=ctx.createGain();
+let gainB=ctx.createGain();
+let masterGain=ctx.createGain();
+
+/* CONNECT */
+srcA.connect(gainA);
+srcB.connect(gainB);
+
+let mixGain=ctx.createGain();
+gainA.connect(mixGain);
+gainB.connect(mixGain);
+
+/* EQ SYSTEM */
+let freqs=[31,62,125,250,500,1000,2000,4000,8000,16000];
+let bands=[];
+let eqBox=document.getElementById("eqBox");
+
+freqs.forEach((f)=>{
+
+ let row=document.createElement("div");
+ row.className="eqRow";
+
+ let freq=document.createElement("div");
+ freq.className="freq";
+ freq.innerText=(f>=1000?f/1000+"k":f);
+
+ let slider=document.createElement("input");
+ slider.type="range";
+ slider.min=-30;
+ slider.max=30;
+ slider.value=0;
+
+ let value=document.createElement("div");
+ value.className="value";
+ value.innerText="0";
+
+ row.appendChild(freq);
+ row.appendChild(slider);
+ row.appendChild(value);
+ eqBox.appendChild(row);
+
+ let eq=ctx.createBiquadFilter();
+ eq.type="peaking";
+ eq.frequency.value=f;
+ eq.gain.value=0;
+
+ function update(){
+  let val=slider.value;
+  eq.gain.value=val;
+
+  value.innerText = val>0 ? "+"+val : val;
+
+  let percent=(val - slider.min)/(slider.max - slider.min)*100;
+
+  slider.style.background=
+   `linear-gradient(to right,#f7c948 ${percent}%,#111 ${percent}%)`;
+ }
+
+ slider.oninput=update;
+ update();
+
+ bands.push(eq);
+});
+
+/* CONNECT EQ */
+mixGain.connect(bands[0]);
+for(let i=0;i<bands.length-1;i++){
+ bands[i].connect(bands[i+1]);
+}
+bands[bands.length-1].connect(masterGain);
+masterGain.connect(ctx.destination);
+
+/* UNLOCK AUDIO */
+document.body.addEventListener("click",()=>ctx.resume(),{once:true});
+
+/* SONG SYSTEM */
+let songs=[],indexA=0,indexB=1;
+
+indexedDB.open("MusicDB",1).onsuccess=e=>{
+ let db=e.target.result;
+
+ db.transaction("songs","readonly")
+ .objectStore("songs")
+ .getAll().onsuccess=e=>{
+
+  songs=e.target.result;
+
+  if(songs.length){
+   audioA.src=songs[0].data;
+   titleA.innerText=songs[0].name;
+
+   if(songs[1]){
+    audioB.src=songs[1].data;
+    titleB.innerText=songs[1].name;
+   }
+  }
+ };
+};
+
+/* CONTROLS */
+function play(d){ (d==='A'?audioA:audioB).play(); }
+function pause(d){ (d==='A'?audioA:audioB).pause(); }
+
+function next(d){
+ if(d==='A'){
+  indexA=(indexA+1)%songs.length;
+  audioA.src=songs[indexA].data;
+  play('A');
+ }else{
+  indexB=(indexB+1)%songs.length;
+  audioB.src=songs[indexB].data;
+  play('B');
+ }
+}
+
+function prev(d){
+ if(d==='A'){
+  indexA=(indexA-1+songs.length)%songs.length;
+  audioA.src=songs[indexA].data;
+  play('A');
+ }else{
+  indexB=(indexB-1+songs.length)%songs.length;
+  audioB.src=songs[indexB].data;
+  play('B');
+ }
+}
+
+/* MIXER */
+cross.oninput=e=>{
+ let x=e.target.value;
+ gainA.gain.value=1-x;
+ gainB.gain.value=x;
+};
+
+master.oninput=e=>{
+ masterGain.gain.value=e.target.value;
+};
+
+/* EQ PANEL */
+function toggleEQ(){
+ document.getElementById("eqPanel").classList.toggle("active");
+}
+</script>
+
+</body>
+</html>
